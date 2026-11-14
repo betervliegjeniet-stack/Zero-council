@@ -1,0 +1,189 @@
+@font-face {
+  font-family: 'Oswald';
+  src: url('/fonts/oswald-latin-500-normal.woff2') format('woff2');
+  font-weight: 500;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Oswald';
+  src: url('/fonts/oswald-latin-700-normal.woff2') format('woff2');
+  font-weight: 700;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Crimson Pro';
+  src: url('/fonts/crimson-pro-latin-400-normal.woff2') format('woff2');
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Crimson Pro';
+  src: url('/fonts/crimson-pro-latin-400-italic.woff2') format('woff2');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+:root {
+  --bg: #0b0a09;
+  --bg-raised: #161412;
+  --bone: #e8e0cc;
+  --bone-dim: #a39c8a;
+  --crimson: #b3121b;
+  --crimson-bright: #e0222d;
+  --rust: #8c4a1d;
+  --toxic: #9cff6a;
+  --blight: #b04cff;
+  --brass: #c9a227;
+  --font-display: 'Oswald', 'Arial Narrow', sans-serif;
+  --font-serif: 'Crimson Pro', Georgia, serif;
+  --font-sans: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background: var(--bg);
+  color: var(--bone);
+  font-family: var(--font-sans);
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  overscroll-behavior: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.screen {
+  position: relative;
+  min-height: 100%;
+  max-width: 430px;
+  margin: 0 auto;
+  padding: calc(env(safe-area-inset-top) + 24px) calc(env(safe-area-inset-right) + 20px)
+    calc(env(safe-area-inset-bottom) + 20px) calc(env(safe-area-inset-left) + 20px);
+  overflow: hidden;
+  isolation: isolate;
+}
+
+/* Texture: film grain and a vignette on every screen (SPEC §8). */
+.noise,
+.vignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: -1;
+}
+.noise {
+  opacity: 0.09;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+.vignette {
+  background:
+    radial-gradient(ellipse at 50% 30%, rgba(140, 74, 29, 0.16), transparent 60%),
+    radial-gradient(ellipse at center, transparent 45%, rgba(0, 0, 0, 0.85) 100%);
+  animation: flicker 2.5s infinite steps(1, end);
+}
+@keyframes flicker {
+  0%, 100% { opacity: 1; }
+  47% { opacity: 0.93; }
+  50% { opacity: 1; }
+  82% { opacity: 0.96; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .vignette { animation: none; }
+}
+
+.title-screen {
+  display: flex;
+  flex-direction: column;
+}
+.title-block {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: center;
+}
+.broadcast {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 17px;
+  line-height: 1.4;
+  color: var(--bone-dim);
+  margin: 0 auto 28px;
+  max-width: 280px;
+}
+.wordmark {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(64px, 22vw, 96px);
+  line-height: 0.92;
+  letter-spacing: 0.04em;
+  margin: 0;
+  color: var(--crimson-bright);
+  text-shadow: 0 0 28px rgba(179, 18, 27, 0.45);
+  /* Grunge mask: worn patches eaten out of the letters. */
+  -webkit-mask-image:
+    radial-gradient(circle at 18% 30%, transparent 0 5px, #000 6px),
+    radial-gradient(circle at 71% 62%, transparent 0 7px, #000 8px),
+    radial-gradient(circle at 44% 86%, transparent 0 4px, #000 5px),
+    radial-gradient(circle at 88% 18%, transparent 0 6px, #000 7px);
+  -webkit-mask-composite: source-in;
+  mask-image:
+    radial-gradient(circle at 18% 30%, transparent 0 5px, #000 6px),
+    radial-gradient(circle at 71% 62%, transparent 0 7px, #000 8px),
+    radial-gradient(circle at 44% 86%, transparent 0 4px, #000 5px),
+    radial-gradient(circle at 88% 18%, transparent 0 6px, #000 7px);
+  mask-composite: intersect;
+}
+.tagline {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 15px;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--bone);
+  margin: 22px 0 0;
+}
+
+/* Primary actions live in the bottom 40% of the screen (thumb zone). */
+.menu {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.btn {
+  min-height: 52px;
+  padding: 0 20px;
+  border: 1px solid #3a342c;
+  border-radius: 4px;
+  background: var(--bg-raised);
+  color: var(--bone);
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 17px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.btn-primary {
+  background: var(--crimson);
+  border-color: var(--crimson-bright);
+  color: #fff;
+}
+.btn:disabled {
+  opacity: 0.55;
+}
+.build-note {
+  margin: 16px 0 0;
+  text-align: center;
+  font-size: 14px;
+  color: var(--bone-dim);
+}
