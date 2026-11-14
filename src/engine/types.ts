@@ -1,6 +1,6 @@
 // Core engine types. Everything here is plain serializable JSON.
 import type { RulesConfig, Stage } from './config';
-import type { FactionId } from './data';
+import type { FactionId, Personality } from './data';
 
 export type Seat = number;
 export type CardId = string;
@@ -206,6 +206,20 @@ export interface Scratch {
   shield: Seat[];
 }
 
+export type Difficulty = 'easy' | 'normal' | 'merciless';
+
+/** What one AI Councilor believes. Indexed by seat. Built only from public information (SPEC §5.2). */
+export interface AIState {
+  personality: Personality;
+  /** -1..1 */
+  trust: number[];
+  /** 0..1 */
+  hostility: number[];
+  lpEstimate: number[];
+  /** LP this seat recently destroyed of mine; decays every turn. */
+  recentHarm: number[];
+}
+
 export type MainEndCause = 'turnLimit' | 'collapse' | 'attrition' | 'card';
 
 export type Outcome =
@@ -258,6 +272,11 @@ export interface GameState {
   nextId: number;
   mainOver: { cause: MainEndCause; turn: number } | null;
   outcome: Outcome | null;
+  difficulty: Difficulty;
+  /** Merciless only: the AIs may read true LP values. Off by default. */
+  aiCheats: boolean;
+  /** One entry per seat; null for the human. */
+  ai: (AIState | null)[];
 }
 
 export type Intent =
@@ -271,7 +290,9 @@ export type Intent =
   | { type: 'ChooseOption'; seat: Seat; decisionId: string; option: string }
   | { type: 'ProposeDeal'; seat: Seat; partner: Seat; terms: DealTerm[] }
   | { type: 'RespondDeal'; seat: Seat; dealId: string; accept: boolean }
-  | { type: 'UseAbility'; seat: Seat; ability: AbilityId; target?: Seat; dealId?: string };
+  | { type: 'UseAbility'; seat: Seat; ability: AbilityId; target?: Seat; dealId?: string }
+  /** The Bathroom Break Rule: the human was away for `seconds` of the Whisper (SPEC §4.1). */
+  | { type: 'HumanAbsent'; seconds: number };
 
 export type GameEvent =
   | { type: 'GameCreated'; seed: number; playerCount: number }
@@ -322,6 +343,7 @@ export type GameEvent =
   | { type: 'VoteResult'; cardId: CardId; result: VoteResult }
   | { type: 'DeckReshuffled'; pile: 'stage3'; count: number }
   | { type: 'TurnSkipped'; turn: number }
+  | { type: 'AbsencePunished'; seconds: number; hostility: number }
   | { type: 'TurnEnded'; turn: number }
   | { type: 'MainGameOver'; cause: MainEndCause }
   | { type: 'CollapsePenalty'; lowestContributors: Seat[] }

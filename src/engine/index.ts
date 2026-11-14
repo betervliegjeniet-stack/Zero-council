@@ -8,3 +8,4 @@ export { actionCost, dialOptions, validateDial, type DialOption } from './phases
 export { HANDLERS, assertRegistryComplete, getHandler } from './cards';
 export { ballotOptions } from './votes';
 export { VENT_COST, VENT_PAYMENT, PARANOIA_COST, MARTIAL_LAW_COST, INOCULATE_COST_LP } from './abilities';
+export { aiAcceptsDeal, aiAfterDeal, aiDecide, aiWhisperIntents, believedLP, candidateOffers, chooseDial, evaluateDeal, line, LINES, type LineKind, type OfferKind } from './ai';

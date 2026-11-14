@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { applyIntent, createGame, getCard, getFaction, leftOf, rightOf, stageForTurn, turnOrder, DEFAULT_CONFIG } from '../src/engine';
-import { runGame } from '../sim/runner';
+import { randomPolicy, runGame as run } from '../sim/runner';
+
+const runGame = (options: Parameters<typeof run>[0]) => run(options, randomPolicy);
 import { newGame, playTurn, send, stackCrisis, QUIET } from './helpers';
 
 describe('setup (SPEC §2.1)', () => {

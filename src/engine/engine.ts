@@ -4,6 +4,7 @@ import { emit } from './effects';
 import { startTurn } from './phases/crisis';
 import { openCrucibleRound, resolveCrucibleRound, startCrucible, submitBid } from './phases/crucible';
 import { useAbility } from './abilities';
+import { observe } from './ai/beliefs';
 import { checkDeals, proposeDeal, respondDeal } from './deals';
 import { resetScratch } from './flow';
 import { resolveMandate } from './phases/mandate';
@@ -102,7 +103,17 @@ export function applyIntent(state: GameState, intent: Intent): { state: GameStat
     case 'ProposeDeal': proposeDeal(ctx, intent.seat, intent.partner, intent.terms); break;
     case 'RespondDeal': respondDeal(ctx, intent.seat, intent.dealId, intent.accept); break;
     case 'UseAbility': useAbility(ctx, intent.seat, intent.ability, intent.target, intent.dealId); break;
+    case 'HumanAbsent': {
+      // The Bathroom Break Rule: the Council conspires while you are gone.
+      if (s.step !== 'whisper' || intent.seconds <= 0) break;
+      const w = s.config.ai;
+      const hostility = Math.min(w.absencePenaltyMax, (intent.seconds / 10) * w.absencePenaltyPer10s);
+      emit(ctx, { type: 'AbsencePunished', seconds: intent.seconds, hostility });
+      break;
+    }
   }
   run(ctx);
+  // The AI Councilors update their beliefs from everything that just happened in public.
+  observe(s, ctx.ev);
   return { state: s, events: ctx.ev };
 }

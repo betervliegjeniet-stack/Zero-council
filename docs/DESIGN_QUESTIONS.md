@@ -49,3 +49,20 @@ designer has confirmed the default, **Open** when it is still only my reading.
 | 34 | CR-11: is a queued action re-checked against next turn's locks? | No. Only cost and target are checked when it resolves; deal promises are judged on the dial chosen. | — |
 | 35 | `revealLP` in a deal: who learns the number? | Only the deal partner (Subpoena and Legacy Audit reveal to everyone). | — |
 | 36 | A fizzled action and promises. | A fizzled Contribute or Sabotage does not keep a promise; a fizzled Sabotage does not break "will not Sabotage". | — |
+
+## Balance findings from M3 (1,000 six-player games, AI Councilors on Normal, seeds 1-1000)
+
+No rule was changed to produce these numbers; only AI weights in `config.ts` (`DEFAULT_AI`) were tuned.
+Reproduce with `npm run sim -- --games 1000`.
+
+| # | Finding | Numbers | Suggested lever (your call) |
+|---|---|---|---|
+| B1 | **Two factions fall below the 8% Last Survivor floor.** The Archivists are the strongest. | Archivists 23.5%, Scrubbers 16.8%, Wardens 11.0%, Iron 10.0%, **Choir 7.1%**, **Directorate 4.8%** | The Archivists start with 4 LP and Salvage for 2. The Directorate starts with 2 LP and its abilities give it no LP. Starting pools in `factions.json`, or `salvageCostArchivists`. |
+| B2 | **Total Extinction is common.** Almost every case is a final duel in which both players hold the same LP and both go all-in, which the tie rule turns into a double deletion. | 26.8% of games (Easy 33%, Merciless 35%) | A tie-break for the last round (for example most Influence at the door of the Crucible, or first in turn order), behind a flag. |
+| B3 | **LP is scarce at the end.** | 4.9 players enter the Crucible with 3.1 LP each | Follows from B2: with numbers this small, equal totals are likely. |
+| B4 | **A card ends the main game early in 38% of games.** FIN-04 comes up in a quarter of turn-9 Finales, plus CR-21 Zero Hour when its pool fails. | 38.2% card, 58.9% turn 10, 1.3% EH 0 | `finaleMode: "off"`, or removing FIN-04 (a duplicate of CR-40, see SPEC §14.7). |
+| B5 | **Earth Health almost never reaches 0**, so the Total Collapse penalty rarely fires. | Average final EH 10.1; collapse in 1.3% of games | Higher unmitigated EH values in Stage II and III, or a lower starting EH. |
+| B6 | **Pool mitigation is inside the 40-70% target overall, but uneven.** | All pools 58.7%. CR-10 91%, CR-02 89%, CR-05 79%; CR-18 (15) 27%; **CR-14 (12 + surcharge) 6%**; FIN-03 (15) 2% | CR-14 and FIN-03 thresholds. Six players Gathering every turn only produce 12 Influence. |
+| B7 | **Fewer players means harder pools.** | Pools mitigated: 6 players 59%, 5 players 47%, 4 players 38% | Scale thresholds with player count. |
+| B8 | **Public Execution (MAN-07) rarely reaches 4 votes** (DQ-15). | 28% with 6 players, 19% with 5, 14% with 4 | `publicExecutionVotes`, or scale it with player count. |
+| B9 | AIs seal about one deal in six that is offered; two thirds of sealed deals are kept. | 27.8 offers per game, 17.5% sealed; kept 66%, broken 28% | AI weights only (`offerChance`, `dealHonor`). |

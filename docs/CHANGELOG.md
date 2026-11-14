@@ -42,3 +42,24 @@ Not in M1 (by plan): card handlers, Urn votes, active abilities, deals (M2); AI 
 - Tests: 190 in total. One or more per card id (with a check that no id is missed), the Urn rules,
   every ability, the deal rules, and 550 random games with zero errors or invariant violations.
 - `design-pack/` now holds the "Zero Hour" art bible PDF and its four card plates (for M4 art).
+
+## M3 — AI Councilors
+- `src/engine/ai/`: personalities (faction default ± 0.15 seeded jitter), difficulty temperatures, and
+  beliefs (trust, hostility, LP estimate per rival) built only from public events. AIs never read hidden
+  LP unless Merciless is played with `aiCheats`.
+- Action choice by utility scoring and softmax: Gather, Salvage, Sabotage (target by threat, hostility
+  and revenge), Contribute (harm if unmitigated, free-rider estimate, fair share, reserves), Quarantine.
+  Promises are honored by honesty and trust; binding deals are nearly always kept.
+- Voting per ballot type, the Directorate's tie-break, Redact Name, Martial Law, volunteer and card
+  choices, LP pledges, Finale bids and Crucible bids.
+- Whisper: Vent, Inoculate and Subpoena use; deal offers that fit the personality (shared Contribute,
+  paid non-aggression, "Sabotage the leader with me", vote pacts, the Wardens' cure for sale); deals are
+  accepted when their value after a trust discount is positive; the Choir binds deals it distrusts.
+- The Bathroom Break Rule as an intent (`HumanAbsent`): the AIs' hostility toward the human rises.
+- 270 flavor lines in `ai/lines.ts`: 5 per faction and message type.
+- `npm run sim` now plays the AI Councilors and prints the full balance report; `--policy random`,
+  `--difficulty`, `--brief` and `--ai '{...}'` (try weights without editing config) are available.
+- AI weights were tuned (weights only, no rules): pool mitigation went from 19% to 59%, inside the
+  40-70% target. Two factions miss the 8% survivor floor; see the balance findings in
+  `docs/DESIGN_QUESTIONS.md`.
+- Tests: 211 in total, including 500 AI games across 4, 5 and 6 players with no errors or violations.

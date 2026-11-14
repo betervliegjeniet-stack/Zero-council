@@ -3,9 +3,10 @@ import { DEFAULT_CONFIG, type RulesConfig } from './config';
 import { CARDS, FACTIONS, getFaction, type FactionId } from './data';
 import { randInt, seedToState, shuffle } from './rng';
 import { emptyModifiers } from './selectors';
-import type { CardId, GameEvent, GameState, PlayerState } from './types';
+import { createAIState } from './ai/personality';
+import type { CardId, Difficulty, GameEvent, GameState, PlayerState } from './types';
 
-export const STATE_VERSION = 2;
+export const STATE_VERSION = 3;
 
 export interface GameOptions {
   seed: number;
@@ -13,6 +14,9 @@ export interface GameOptions {
   /** The human's faction (seat 0). Null or omitted = every seat is an AI (headless sims). */
   humanFaction?: FactionId | null;
   config?: Partial<RulesConfig>;
+  difficulty?: Difficulty;
+  /** Merciless only: let the AIs read true LP values. */
+  aiCheats?: boolean;
 }
 
 export function createGame(options: GameOptions): { state: GameState; events: GameEvent[] } {
@@ -114,6 +118,10 @@ export function createGame(options: GameOptions): { state: GameState; events: Ga
     nextId: 1,
     mainOver: null,
     outcome: null,
+    difficulty: options.difficulty ?? 'normal',
+    aiCheats: (options.aiCheats ?? false) && options.difficulty === 'merciless',
+    ai: [],
   };
+  state.ai = players.map((p) => (p.isHuman ? null : createAIState(state, state, p.seat)));
   return { state, events: [{ type: 'GameCreated', seed: options.seed, playerCount }] };
 }

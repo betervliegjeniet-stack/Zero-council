@@ -1,7 +1,8 @@
 // Headless game runner: drives the engine with a policy that answers every decision.
 import {
-  IllegalIntentError, applyIntent, createGame, dialOptions, living, type DealTerm, type Dial, type GameEvent,
-  type GameOptions, type GameState, type Intent, type PendingDecision, type Seat,
+  IllegalIntentError, aiAcceptsDeal, aiAfterDeal, aiDecide, aiWhisperIntents, applyIntent, createGame, dialOptions,
+  living, turnOrder, type Deal, type DealTerm, type Dial, type GameEvent, type GameOptions, type GameState,
+  type Intent, type PendingDecision, type Seat,
 } from '../src/engine';
 import { nextFloat, pick, randInt, seedToState, type RngHolder } from '../src/engine/rng';
 import { checkInvariants } from './invariants';
@@ -9,10 +10,12 @@ import { checkInvariants } from './invariants';
 export interface Policy {
   /** Answers one pending decision with one or more intents. */
   decide(state: GameState, decision: PendingDecision, rng: RngHolder): Intent[];
-  /** Called once per Whisper: deals and Whisper abilities to attempt (illegal ones are dropped). */
-  whisper?(state: GameState, rng: RngHolder): Intent[];
+  /** Called once per seat per Whisper: abilities and deal offers to attempt (illegal ones are dropped). */
+  whisper?(state: GameState, seat: Seat, rng: RngHolder): Intent[];
   /** Called after a deal was offered to `seat`: accept it? */
   acceptDeal?(state: GameState, seat: Seat, dealId: string, rng: RngHolder): boolean;
+  /** Called after a deal was accepted: follow-ups such as delivering a cure or binding the deal. */
+  afterDeal?(state: GameState, deal: Deal, rng: RngHolder): Intent[];
 }
 
 function randomDial(state: GameState, seat: Seat, rng: RngHolder): Dial {
@@ -59,27 +62,38 @@ export const randomPolicy: Policy = {
         return [{ type: 'ChooseOption', seat: d.seat, decisionId: d.id, option: pick(rng, d.options) }];
     }
   },
-  whisper(state, rng) {
+  whisper(state, seat, rng) {
     const out: Intent[] = [];
     const alive = living(state);
-    for (const p of alive) {
-      const others = alive.filter((x) => x.seat !== p.seat);
-      if (others.length === 0) continue;
-      const other = pick(rng, others).seat;
-      if (nextFloat(rng) < 0.4) {
-        const terms = [randomTerm(state, p.seat, other, rng)];
-        if (nextFloat(rng) < 0.4) terms.push(randomTerm(state, p.seat, other, rng));
-        out.push({ type: 'ProposeDeal', seat: p.seat, partner: other, terms });
-      }
-      if (nextFloat(rng) < 0.4) {
-        if (p.factionId === 'scrubbers') out.push({ type: 'UseAbility', seat: p.seat, ability: 'ventSector', target: other });
-        if (p.factionId === 'wardens') out.push({ type: 'UseAbility', seat: p.seat, ability: 'inoculate', target: pick(rng, alive).seat });
-        if (p.factionId === 'directorate') out.push({ type: 'UseAbility', seat: p.seat, ability: 'subpoena', target: other });
-      }
+    const p = state.players[seat]!;
+    const others = alive.filter((x) => x.seat !== seat);
+    if (others.length === 0) return out;
+    const other = pick(rng, others).seat;
+    if (nextFloat(rng) < 0.4) {
+      const terms = [randomTerm(state, seat, other, rng)];
+      if (nextFloat(rng) < 0.4) terms.push(randomTerm(state, seat, other, rng));
+      out.push({ type: 'ProposeDeal', seat, partner: other, terms });
+    }
+    if (nextFloat(rng) < 0.4) {
+      if (p.factionId === 'scrubbers') out.push({ type: 'UseAbility', seat, ability: 'ventSector', target: other });
+      if (p.factionId === 'wardens') out.push({ type: 'UseAbility', seat, ability: 'inoculate', target: pick(rng, alive).seat });
+      if (p.factionId === 'directorate') out.push({ type: 'UseAbility', seat, ability: 'subpoena', target: other });
     }
     return out;
   },
   acceptDeal: (_s, _seat, _id, rng) => nextFloat(rng) < 0.6,
+  afterDeal(state, deal, rng) {
+    const choir = [deal.proposer, deal.partner].find((x) => state.players[x]!.factionId === 'choir');
+    return choir !== undefined && nextFloat(rng) < 0.5 ? [{ type: 'UseAbility', seat: choir, ability: 'bindingOath', dealId: deal.id }] : [];
+  },
+};
+
+/** The AI Councilors of SPEC §5 on every seat. */
+export const aiPolicy: Policy = {
+  decide: (state, d) => aiDecide(state, d),
+  whisper: (state, seat) => aiWhisperIntents(state, seat).intents,
+  acceptDeal: (state, seat, dealId) => aiAcceptsDeal(state, seat, dealId),
+  afterDeal: (state, deal) => aiAfterDeal(state, deal),
 };
 
 export interface GameResult {
@@ -89,7 +103,7 @@ export interface GameResult {
   violations: string[];
 }
 
-export function runGame(options: GameOptions, policy: Policy = randomPolicy, maxIntents = 20000): GameResult {
+export function runGame(options: GameOptions, policy: Policy = aiPolicy, maxIntents = 20000): GameResult {
   const rng = { rng: seedToState(options.seed ^ 0x5eed) };
   let { state, events } = createGame(options);
   const violations: string[] = [];
@@ -144,15 +158,18 @@ export function runGame(options: GameOptions, policy: Policy = randomPolicy, max
     }
     if (state.step === 'whisper' && whisperedTurn !== state.turn && policy.whisper) {
       whisperedTurn = state.turn;
-      for (const intent of policy.whisper(state, rng)) {
-        if (!attempt(intent)) continue;
-        drain();
-        if (intent.type === 'ProposeDeal' && policy.acceptDeal) {
-          const deal = state.deals.at(-1)!;
-          attempt({ type: 'RespondDeal', seat: deal.partner, dealId: deal.id, accept: policy.acceptDeal(state, deal.partner, deal.id, rng) });
-          const choir = [deal.proposer, deal.partner].find((x) => state.players[x]!.factionId === 'choir');
-          if (choir !== undefined && deal.status !== 'rejected' && nextFloat(rng) < 0.5) {
-            attempt({ type: 'UseAbility', seat: choir, ability: 'bindingOath', dealId: deal.id });
+      for (const seat of turnOrder(state)) {
+        if (state.step !== 'whisper') break;
+        for (const intent of policy.whisper(state, seat, rng)) {
+          if (!attempt(intent)) continue;
+          drain();
+          if (intent.type !== 'ProposeDeal' || !policy.acceptDeal) continue;
+          const offered = state.deals.at(-1)!;
+          const accept = policy.acceptDeal(state, offered.partner, offered.id, rng);
+          if (!attempt({ type: 'RespondDeal', seat: offered.partner, dealId: offered.id, accept }) || !accept) continue;
+          const deal = state.deals.find((d) => d.id === offered.id)!;
+          for (const follow of policy.afterDeal?.(state, deal, rng) ?? []) {
+            if (attempt(follow)) drain();
           }
         }
       }
