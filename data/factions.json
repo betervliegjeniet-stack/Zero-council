@@ -1,0 +1,71 @@
+{
+  "version": 1,
+  "factions": [
+    {
+      "id": "archivists",
+      "name": "The Archivists of Ash",
+      "role": "Keepers of dead history and Legacy hoards.",
+      "start": { "influence": 4, "lp": 4 },
+      "passive": { "id": "curatedRuin", "name": "Curated Ruin", "text": "Salvage costs 2 Influence instead of 3 (once per turn)." },
+      "active": { "id": "redactName", "name": "Redact Name", "text": "Once per game, during an Urn vote: cancel up to 2 ballots cast against you.", "cost": { "influence": 0, "lp": 0 }, "usesPerGame": 1, "window": "vote_after_ballots" },
+      "palette": { "primary": "#8a7f6a", "accent": "#d9c9a3" },
+      "sigil": "book-ash",
+      "aiPersonality": { "greed": 0.7, "aggression": 0.3, "cooperation": 0.5, "honesty": 0.6, "vengefulness": 0.5, "risk": 0.3 }
+    },
+    {
+      "id": "scrubbers",
+      "name": "The Scrubber Guild",
+      "role": "Engineers controlling the failing oxygen recyclers.",
+      "start": { "influence": 6, "lp": 2 },
+      "passive": { "id": "airTax", "name": "Air Tax", "text": "Gain +1 Influence from the supply whenever a rival Contributes." },
+      "active": { "id": "ventSector", "name": "Vent the Sector", "text": "During Whisper: spend 4 Influence. A rival must pay you 2 Influence or be Embargoed this turn.", "cost": { "influence": 4, "lp": 0 }, "usesPerTurn": 1, "window": "whisper" },
+      "palette": { "primary": "#4f7a5a", "accent": "#9cff6a" },
+      "sigil": "valve",
+      "aiPersonality": { "greed": 0.8, "aggression": 0.4, "cooperation": 0.6, "honesty": 0.4, "vengefulness": 0.5, "risk": 0.5 }
+    },
+    {
+      "id": "choir",
+      "name": "The Quiet Choir",
+      "role": "Psychological manipulators and blackmailers.",
+      "start": { "influence": 5, "lp": 3 },
+      "passive": { "id": "bindingOath", "name": "Binding Oath", "text": "Once per Whisper: make one accepted deal binding. Whoever breaks it loses 2 LP." },
+      "active": { "id": "whisperedParanoia", "name": "Whispered Paranoia", "text": "After dials are set: peek at one rival's dial, then you may change yours.", "cost": { "influence": 2, "lp": 0 }, "usesPerTurn": 1, "window": "after_dials_set", "designNote": "Cost not specified in the GDD: default 2 Influence, once per turn." },
+      "palette": { "primary": "#5a3a6e", "accent": "#c79bff" },
+      "sigil": "stitched-mouth",
+      "aiPersonality": { "greed": 0.5, "aggression": 0.4, "cooperation": 0.4, "honesty": 0.2, "vengefulness": 0.6, "risk": 0.5 }
+    },
+    {
+      "id": "iron",
+      "name": "The Iron Remnant",
+      "role": "Militarized enforcers of bunker discipline.",
+      "start": { "influence": 5, "lp": 3 },
+      "passive": { "id": "brutalEfficiency", "name": "Brutal Efficiency", "text": "Sabotage costs 1 Influence when the target is the LP leader (ties count)." },
+      "active": { "id": "martialLaw", "name": "Martial Law", "text": "Reactive: spend 3 Influence to ignore a Crisis penalty that would hit you personally (not EH changes).", "cost": { "influence": 3, "lp": 0 }, "usesPerTurn": 1, "window": "reactive_crisis_penalty" },
+      "palette": { "primary": "#6e2a22", "accent": "#ff4a3a" },
+      "sigil": "iron-fist",
+      "aiPersonality": { "greed": 0.4, "aggression": 0.9, "cooperation": 0.3, "honesty": 0.7, "vengefulness": 0.8, "risk": 0.7 }
+    },
+    {
+      "id": "wardens",
+      "name": "The Blight Wardens",
+      "role": "Quarantine officers weaponizing the bunker's pathogens.",
+      "start": { "influence": 4, "lp": 3 },
+      "passive": { "id": "asymptomatic", "name": "Asymptomatic Carrier", "text": "Your first Blight Cube never drains you. When you Sabotage, you may move 1 of your Blight Cubes onto the target." },
+      "active": { "id": "inoculate", "name": "Inoculate", "text": "During Whisper: spend 2 LP to remove every Blight Cube from any player (usually sold at extortionate prices).", "cost": { "influence": 0, "lp": 2 }, "usesPerTurn": 1, "window": "whisper" },
+      "palette": { "primary": "#3d2a52", "accent": "#b04cff" },
+      "sigil": "biohazard-cracked",
+      "aiPersonality": { "greed": 0.6, "aggression": 0.6, "cooperation": 0.4, "honesty": 0.4, "vengefulness": 0.6, "risk": 0.6 }
+    },
+    {
+      "id": "directorate",
+      "name": "The Black Urn Directorate",
+      "role": "Bureaucratic executioners of the Council's decrees.",
+      "start": { "influence": 6, "lp": 2 },
+      "passive": { "id": "castingVote", "name": "Casting Vote", "text": "Your Urn ballot counts as 2 votes. You break every Urn tie however you choose, which avoids the EH tie penalty unless you choose chaos." },
+      "active": { "id": "subpoena", "name": "Subpoena", "text": "Once per turn, during Whisper: force one player to reveal their exact LP to everyone.", "cost": { "influence": 0, "lp": 0 }, "usesPerTurn": 1, "window": "whisper", "designNote": "Frequency not specified in the GDD: default once per turn, free." },
+      "palette": { "primary": "#1c1c1c", "accent": "#c9a227" },
+      "sigil": "urn",
+      "aiPersonality": { "greed": 0.6, "aggression": 0.5, "cooperation": 0.5, "honesty": 0.5, "vengefulness": 0.7, "risk": 0.4 }
+    }
+  ]
+}
