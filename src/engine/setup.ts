@@ -20,6 +20,8 @@ export interface GameOptions {
   humanFaction?: FactionId | null;
   config?: Partial<RulesConfig>;
   difficulty?: Difficulty;
+  /** Tutorial: this Crisis card is dealt on turn 1. */
+  firstCrisis?: CardId;
   /** Merciless only: let the AIs read true LP values. */
   aiCheats?: boolean;
 }
@@ -88,6 +90,13 @@ export function createGame(options: GameOptions): { state: GameState; events: Ga
     stage[2].push(...schism.slice(toStage2));
   }
   for (let i = 0; i < 4; i++) stage[i] = shuffle(holder, stage[i]!);
+  if (options.firstCrisis && stage.some((pile) => pile.includes(options.firstCrisis!))) {
+    for (const pile of stage) {
+      const i = pile.indexOf(options.firstCrisis);
+      if (i >= 0) pile.splice(i, 1);
+    }
+    stage[0].push(options.firstCrisis); // the top of a pile is its last element
+  }
 
   const mandates = shuffle(holder, CARDS.filter((c) => c.deck === 'mandate').map((c) => c.id));
   const finale = config.finaleMode === 'off' ? [] : shuffle(holder, CARDS.filter((c) => c.deck === 'finale').map((c) => c.id));

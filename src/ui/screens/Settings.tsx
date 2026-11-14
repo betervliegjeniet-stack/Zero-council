@@ -1,4 +1,6 @@
 // Settings (SPEC §7.1 screen 11).
+import { SFX_NAMES, play } from '../../audio/sfx';
+import { haptic } from '../../fx/haptics';
 import { Segmented, Toggle } from '../common';
 import { useGameStore } from '../../store/gameStore';
 
@@ -25,6 +27,13 @@ export function SettingsScreen() {
         <Toggle label="Fast animations" value={s.settings.fast} onChange={(v) => set({ fast: v })} />
         <Segmented label="Whisper timer (next game)" value={s.settings.whisperSeconds} onChange={(v) => set({ whisperSeconds: v })}
           options={[{ value: 30, label: '30s' }, { value: 45, label: '45s' }, { value: 90, label: '90s' }, { value: 180, label: 'Tabletop' }]} />
+        <section>
+          <h2>Sound test</h2>
+          <p className="dim">Every effect is synthesized on your device. Tap one to hear it.</p>
+          <div className="sound-grid">
+            {SFX_NAMES.map((n) => <button key={n} type="button" className="chip" onClick={() => { play(n); haptic('tap'); }}>{n}</button>)}
+          </div>
+        </section>
         <section className="about">
           <h2>Current game</h2>
           {s.game ? <p>Seed <code>{s.game.seed}</code> · {s.game.players.length} Councilors · {s.game.difficulty}<br /><small>Quote the seed in a bug report so the game can be replayed.</small></p> : <p className="dim">No game in progress.</p>}

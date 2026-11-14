@@ -7,6 +7,7 @@ import { Sheet, Stepper } from '../common';
 import { Seal } from '../icons';
 import { FACTION_SHORT, useGameStore } from '../../store/gameStore';
 import { describe, termText } from '../text';
+import { play } from '../../audio/sfx';
 
 type Template = 'pact' | 'buyPeace' | 'sellPeace' | 'hit' | 'vote' | 'buyLP' | 'sellCure' | 'buyCure';
 
@@ -130,6 +131,10 @@ export function WhisperSheet({ g, me, onHide }: Props) {
   );
   const pct = total > 0 ? left / total : 0;
   const secs = Math.ceil(left / 1000);
+  // A heartbeat for each of the last ten seconds.
+  useEffect(() => {
+    if (secs <= 10 && secs > 0) play('heartbeat');
+  }, [secs]);
 
   return (
     <Sheet title="Whisper Campaign" tall onClose={onHide} className="whisper-panel">

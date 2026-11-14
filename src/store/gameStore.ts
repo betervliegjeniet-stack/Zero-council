@@ -2,10 +2,11 @@
 // keeps the event log, and saves after every change.
 import { create } from 'zustand';
 import {
-  IllegalIntentError, STATE_VERSION, aiAcceptsDeal, aiAfterDeal, aiDecide, aiWhisperIntents, applyIntent, createGame,
+  DEFAULT_CONFIG, IllegalIntentError, STATE_VERSION, aiAcceptsDeal, aiAfterDeal, aiDecide, aiWhisperIntents, applyIntent, createGame,
   dialOptions, line, turnOrder, type Deal, type Dial, type Difficulty, type FactionId, type GameEvent, type GameState,
   type Intent, type LineKind, type PendingDecision, type Seat,
 } from '../engine';
+import { batchable, fxFor } from '../fx/animations';
 import { DEFAULT_SETTINGS, loadSettings, saveSettings, type Settings } from './settings';
 
 export type Screen = 'title' | 'setup' | 'game' | 'codex' | 'settings' | 'end';
@@ -33,6 +34,7 @@ interface SaveFile {
 }
 
 const SAVE_KEY = 'zc.save';
+const TUTORIAL_KEY = 'zc.tutorialDone';
 
 function readSave(): SaveFile | null {
   try {
@@ -77,6 +79,18 @@ interface GameStore {
   dialDeadline: number | null;
   hasSave: boolean;
   error: string | null;
+  /** First-game tutorial: the coach mark being shown (0-4), or null when it is off or finished. */
+  tutorial: number | null;
+  tutorialNext: () => void;
+  tutorialEnd: () => void;
+  /** Events waiting to be played back, in order. */
+  fxQueue: LogEntry[];
+  /** The group of events being played right now. */
+  playing: LogEntry[];
+  /** Starts the next group of the playback queue (or clears `playing` when the queue is empty). */
+  fxNext: () => void;
+  /** Tap-to-skip: drops everything that is still waiting. */
+  fxSkip: () => void;
 
   go: (screen: Screen) => void;
   setSettings: (patch: Partial<Settings>) => void;
@@ -113,8 +127,9 @@ export const useGameStore = create<GameStore>((set, get) => {
     const game = get().game;
     if (!game) return [];
     const { state, events } = applyIntent(game, intent);
-    const log = get().log.concat(events.map((event) => ({ n: counter++, turn: state.turn, event })));
-    const patch: Partial<GameStore> = { game: state, log };
+    const entries = events.map((event) => ({ n: counter++, turn: state.turn, event }));
+    const log = get().log.concat(entries);
+    const patch: Partial<GameStore> = { game: state, log, fxQueue: get().fxQueue.concat(entries) };
     if (events.some((e) => e.type === 'WhisperStarted')) {
       patch.whisperQueue = turnOrder(state).filter((seat) => state.ai[seat]);
     }
@@ -170,7 +185,8 @@ export const useGameStore = create<GameStore>((set, get) => {
     const g = get().game;
     writeSave(g, get().log, get().dealLines);
     set({ hasSave: !!g && g.step !== 'ended' });
-    if (g?.step === 'ended') set({ screen: 'end' });
+    // The end screen opens once the last animations have played (see GameScreen); headless callers get it at once.
+    if (g?.step === 'ended' && typeof window === 'undefined') set({ screen: 'end' });
   }
 
   /** One AI seat's Whisper: abilities, then at most one offer. AI partners answer at once. */
@@ -241,6 +257,36 @@ export const useGameStore = create<GameStore>((set, get) => {
     dialDeadline: null,
     hasSave: saved !== null,
     error: null,
+    tutorial: null,
+    tutorialNext: () => {
+      const step = get().tutorial;
+      if (step === null) return;
+      if (step >= 4) return get().tutorialEnd();
+      set({ tutorial: step + 1 });
+    },
+    tutorialEnd: () => {
+      try {
+        localStorage.setItem(TUTORIAL_KEY, '1');
+      } catch { /* shown again next time */ }
+      set({ tutorial: null });
+    },
+    fxQueue: [],
+    playing: [],
+    fxNext: () => {
+      const g = get().game;
+      const queue = get().fxQueue.slice();
+      if (!g) return set({ fxQueue: [], playing: [] });
+      const me = humanSeat(g);
+      while (queue.length > 0) {
+        const first = queue.shift()!;
+        if (!fxFor(first.event, g, me)) continue; // not animated: it applies at once
+        const group = [first];
+        while (queue.length > 0 && batchable(first.event, queue[0]!.event) && fxFor(queue[0]!.event, g, me)) group.push(queue.shift()!);
+        return set({ fxQueue: queue, playing: group });
+      }
+      set({ fxQueue: [], playing: [] });
+    },
+    fxSkip: () => set({ fxQueue: [], playing: [] }),
 
     go: (screen) => set((s) => ({ screen, backTo: screen === 'codex' || screen === 'settings' ? (s.screen === 'codex' || s.screen === 'settings' ? s.backTo : s.screen) : s.backTo })),
     setSettings: (patch) => {
@@ -253,8 +299,14 @@ export const useGameStore = create<GameStore>((set, get) => {
     newGame: () => {
       const { setup, settings } = get();
       const seed = (Date.now() ^ Math.floor(Math.random() * 0xffffffff)) >>> 0;
+      let firstTime = false;
+      try {
+        firstTime = settings.tutorial && typeof localStorage !== 'undefined' && !localStorage.getItem(TUTORIAL_KEY);
+      } catch { /* no storage: no tutorial */ }
       const { state, events } = createGame({
         seed,
+        // The tutorial scripts turn 1 with a simple pool crisis (DQ-9).
+        firstCrisis: firstTime ? DEFAULT_CONFIG.tutorialCardId : undefined,
         playerCount: setup.playerCount,
         humanFaction: setup.faction,
         difficulty: setup.difficulty,
@@ -268,7 +320,7 @@ export const useGameStore = create<GameStore>((set, get) => {
       counter = 0;
       set({
         game: state, log: events.map((event) => ({ n: counter++, turn: 0, event })), dealLines: {}, whisperQueue: [],
-        awayReport: null, dialDeadline: null, screen: 'game', error: null,
+        awayReport: null, dialDeadline: null, screen: 'game', error: null, fxQueue: [], playing: [], tutorial: firstTime ? 0 : null,
       });
       apply({ type: 'Advance' }); // deal the first Crisis
       pump();
@@ -279,12 +331,12 @@ export const useGameStore = create<GameStore>((set, get) => {
       counter = (save.log.at(-1)?.n ?? 0) + 1;
       const g = save.game;
       set({
-        game: g, log: save.log, dealLines: save.dealLines ?? {}, screen: 'game', awayReport: null, dialDeadline: null,
+        game: g, log: save.log, dealLines: save.dealLines ?? {}, screen: 'game', awayReport: null, dialDeadline: null, fxQueue: [], playing: [],
         whisperQueue: g.step === 'whisper' ? turnOrder(g).filter((seat) => g.ai[seat]) : [],
       });
       pump();
     },
-    abandon: () => set({ screen: 'title' }),
+    abandon: () => set({ screen: 'title', fxQueue: [], playing: [] }),
     resetSave: () => {
       try {
         localStorage.removeItem(SAVE_KEY);
@@ -314,6 +366,17 @@ export const useGameStore = create<GameStore>((set, get) => {
     whisperAct: () => {
       const [seat, ...rest] = get().whisperQueue;
       if (seat === undefined) return;
+      const g0 = get().game;
+      const me0 = humanSeat(g0);
+      if (get().tutorial !== null && g0 && g0.turn === 1 && me0 !== null && !g0.deals.some((d) => d.partner === me0)) {
+        // Tutorial: the first Councilor always offers a simple pact, so there is a note to answer.
+        if (attempt({ type: 'ProposeDeal', seat, partner: me0, terms: [{ kind: 'willContribute', who: seat, min: 1 }, { kind: 'willContribute', who: me0, min: 1 }] })) {
+          setLine(get().game!.deals.at(-1)!.id, seat, 'pact');
+          set({ whisperQueue: rest });
+          pump();
+          return;
+        }
+      }
       set({ whisperQueue: rest });
       aiWhisperTurn(seat);
       pump();
@@ -379,6 +442,8 @@ export const useGameStore = create<GameStore>((set, get) => {
         const after = get().game!;
         if (after.step !== 'ended' && after.pending.length === 0) apply({ type: 'Advance', now: Date.now(), seal: true });
       }
+      // Fast-forward: only the last moments are played back.
+      set({ fxQueue: get().fxQueue.slice(-14), playing: [] });
       pump();
     },
     clearError: () => set({ error: null }),

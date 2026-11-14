@@ -5,6 +5,9 @@ import { Sheet } from '../common';
 import { CrisisZone, Mat, Rivals, RivalSheet, Tracker } from '../game/Board';
 import { Crucible } from '../game/Crucible';
 import { DialOverlay } from '../game/Dial';
+import { FxLayer, usePlayback, useView } from '../game/Fx';
+import { setAmbienceMode, startAmbience } from '../../audio/ambience';
+import { stageForTurn } from '../../engine';
 import { ChoicePrompt, NumberPrompt, UrnPrompt } from '../game/Prompts';
 import { LogSheet, TurnReport } from '../game/Report';
 import { WhisperSheet } from '../game/Whisper';
@@ -30,8 +33,12 @@ export function GameScreen() {
   const g = s.game!;
   const me = humanSeat(g);
   const my = me !== null ? g.players[me]! : null;
-  const deleted = !!my?.eliminated;
-  const decision = deleted ? undefined : g.pending.find((x) => x.seat === me);
+  const view = useView(g);
+  const { busy, playing, spec } = usePlayback(g);
+  // "Deleted" only once the deletion has been played back.
+  const deleted = !!my?.eliminated && me !== null && view.dead[me]!;
+  // Prompts wait until the events before them have played.
+  const decision = deleted || busy ? undefined : g.pending.find((x) => x.seat === me);
   const [dialOpen, setDialOpen] = useState(false);
   const [whisperOpen, setWhisperOpen] = useState(g.step === 'whisper');
   const [logOpen, setLogOpen] = useState(false);
@@ -46,7 +53,15 @@ export function GameScreen() {
   }, [g.step, g.turn]);
 
   const inCrucible = g.step.startsWith('crucible');
-  const ph = phase(g, me, deleted);
+  const ph = busy && !deleted ? { label: '…', kind: 'wait' as const } : phase(g, me, deleted);
+  // The end screen opens once the last animation has played.
+  useEffect(() => {
+    if (g.step === 'ended' && !busy) s.go('end');
+  }, [g.step, busy]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    startAmbience();
+    setAmbienceMode(stageForTurn(g.config, Math.max(1, view.turn)), g.step.startsWith('crucible') && !busy);
+  }, [view.turn, g.step, busy]); // eslint-disable-line react-hooks/exhaustive-deps
   const onPhase = () => {
     if (ph.kind === 'advance') s.advance();
     else if (ph.kind === 'dial') setDialOpen(true);
@@ -56,11 +71,11 @@ export function GameScreen() {
   const crucibleDecision = decision?.kind === 'crucibleBid' ? decision : null;
 
   return (
-    <main className={`screen game${g.eh <= 5 ? ' critical' : ''}${inCrucible ? ' in-crucible' : ''}`}>
+    <main className={`screen game${view.eh <= 5 ? ' critical' : ''}${inCrucible ? ' in-crucible' : ''}${spec?.shake ? ' shaking' : ''}`}>
       <div className="noise" aria-hidden="true" />
       <h1 className="sr-only">Zero Council — turn {g.turn}</h1>
-      <Tracker g={g} />
-      {!inCrucible && <Rivals g={g} me={me} onPick={setRival} />}
+      <Tracker g={g} view={view} />
+      {!inCrucible && <Rivals g={g} me={me} onPick={setRival} view={view} playing={playing} />}
       <div className="centre">
         {deleted && (
           <div className="deleted-banner" role="alert">
@@ -73,12 +88,15 @@ export function GameScreen() {
         )}
         {inCrucible
           ? <Crucible g={g} me={me} d={crucibleDecision} />
-          : g.step === 'turnEndGate'
+          : g.step === 'turnEndGate' && !busy
             ? <TurnReport g={g} me={me} />
-            : <CrisisZone g={g} />}
+            : <CrisisZone g={g} view={view} />}
       </div>
       {me !== null && (
-        <Mat g={g} me={me} phaseLabel={ph.label} onPhase={onPhase} phaseDisabled={ph.kind === 'wait'} onLog={() => setLogOpen(true)} onMenu={() => setMenuOpen(true)} />
+        <Mat g={g} me={me} phaseLabel={ph.label} onPhase={onPhase} phaseDisabled={ph.kind === 'wait'} onLog={() => setLogOpen(true)} onMenu={() => setMenuOpen(true)} view={view} playing={playing} />
+      )}
+      {(playing.length > 0 || busy) && (
+        <FxLayer g={g} playing={playing} spec={spec} busy={busy} />
       )}
 
       {whisperOpen && g.step === 'whisper' && me !== null && !deleted && <WhisperSheet g={g} me={me} onHide={() => setWhisperOpen(false)} />}
@@ -110,6 +128,28 @@ export function GameScreen() {
           <button type="button" className="btn btn-primary wide" onClick={s.dismissAway}>Face them</button>
         </Sheet>
       )}
+      {s.tutorial !== null && me !== null && (() => {
+        // Coach marks for the first game (SPEC §7.2). Each one waits for its moment.
+        const marks = [
+          { when: g.step === 'crisisGate' && !busy, head: 'The bunker is dying', text: 'The top bar counts 10 turns. Under it is Earth Health: when a crisis is not stopped, it drops. At zero, everyone bleeds.', next: 'Next', pos: 'low' },
+          { when: g.step === 'crisisGate' && !busy, head: 'This turn\'s Crisis', text: 'Tap the card to read it. This one needs the Council to pool Influence. Fall short and the penalty lands on everyone.', next: 'Next', pos: '' },
+          { when: g.step === 'whisper', head: 'The Whisper Campaign', text: 'Rivals pass you notes while the timer runs. A deal is only a promise. Accept the note below, then Seal the Council.', next: 'Got it', pos: 'bottom' },
+          { when: dialOpen && decision?.kind === 'dial', head: 'Your secret dial', text: 'Pick one action. Contribute keeps your promise; Gather would betray it. Nobody sees your choice until all dials turn. Then hold to seal.', next: 'Got it', pos: 'bottom' },
+          { when: g.step === 'turnEndGate' && !busy, head: 'Resolution', text: 'Dials turned in order, the pool was checked and promises were judged. Nine more turns, then the Crucible, where only Legacy counts.', next: 'Begin', pos: '' },
+        ];
+        const m = marks[s.tutorial];
+        if (!m || !m.when) return null;
+        return (
+          <aside className={`coach ${m.pos}`} role="dialog" aria-label="Tutorial">
+            <b>{m.head}</b>
+            <p>{m.text}</p>
+            <div className="coach-actions">
+              <button type="button" className="btn btn-small" onClick={s.tutorialEnd}>Skip tutorial</button>
+              <button type="button" className="btn btn-small btn-primary" onClick={s.tutorialNext}>{m.next}</button>
+            </div>
+          </aside>
+        );
+      })()}
       {s.error && (
         <div className="toast" role="alert" onClick={s.clearError}>{s.error}</div>
       )}

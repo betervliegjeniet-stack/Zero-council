@@ -82,11 +82,12 @@ describe('game store', () => {
     }
     const s = useGameStore.getState();
     expect(s.game!.step).toBe('whisper');
+    const before = s.game!.players[0]!.influence;
     const deal = s.proposeDeal(1, [{ kind: 'giveInfluenceNow', from: 0, amount: 2 }]);
     expect(deal).not.toBeNull();
     expect(['accepted', 'rejected']).toContain(deal!.status);
     useGameStore.getState().clearError();
     expect(useGameStore.getState().dealLines[deal!.id]).toBeTruthy();
-    if (deal!.status === 'accepted') expect(useGameStore.getState().game!.players[0]!.influence).toBe(3);
+    if (deal!.status === 'accepted') expect(useGameStore.getState().game!.players[0]!.influence).toBe(before - 2);
   });
 });

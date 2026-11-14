@@ -7,8 +7,11 @@ import { Sheet, Stepper } from '../common';
 import { Cog, Lock } from '../icons';
 import { FACTION_SHORT, useGameStore } from '../../store/gameStore';
 import { ACTION_LABEL, dialText } from '../text';
+import { play } from '../../audio/sfx';
+import { DURATION } from '../../fx/animations';
+import { haptic } from '../../fx/haptics';
 
-const HOLD_MS = 600;
+const HOLD_MS = DURATION.holdToSeal;
 const BLURB: Record<ActionKind, string> = {
   gather: 'Take Influence from the supply.',
   salvage: 'Forge 1 Legacy Point.',
@@ -64,12 +67,34 @@ export function DialOverlay({ g, me, onClose }: Props) {
   const ready = opt.available && (!needsTarget || safeTarget !== undefined) && cost <= p.influence;
   const peek = [...log].reverse().find((l) => l.turn === g.turn && l.event.type === 'DialPeeked' && l.event.seat === me);
 
+  const [slam, setSlam] = useState(false);
   function seal() {
-    if (!ready) return;
-    if (dispatch({ type: 'SetDial', seat: me, dial }) && dispatch({ type: 'LockDial', seat: me })) {
-      navigator.vibrate?.(30);
-      onClose();
-    }
+    if (!ready || slam) return;
+    // The dial slams face-down, then the choice is locked in.
+    setSlam(true);
+    play('dialSeal');
+    haptic('seal');
+    window.setTimeout(() => {
+      if (dispatch({ type: 'SetDial', seat: me, dial }) && dispatch({ type: 'LockDial', seat: me })) onClose();
+      else setSlam(false);
+    }, DURATION.dialSlam);
+  }
+  function choose(a: ActionKind) {
+    if (a === action) return;
+    setAction(a);
+    play('dialTick');
+    haptic('dialSnap');
+  }
+  // Drag to rotate: the sector under the finger is selected, with a tick for each one passed.
+  const dragging = useRef(false);
+  function sectorAt(e: React.PointerEvent<SVGSVGElement>): ActionKind | null {
+    const box = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX - (box.left + box.width / 2);
+    const y = e.clientY - (box.top + box.height / 2);
+    const r = Math.hypot(x, y) / (box.width / 2);
+    if (r < 0.4 || r > 1.05) return null;
+    const turn = (Math.atan2(y, x) + Math.PI / 2 + Math.PI * 2) % (Math.PI * 2);
+    return options[Math.round((turn / (Math.PI * 2)) * options.length) % options.length]!.action;
   }
   function stopHold() {
     if (timer.current !== null) cancelAnimationFrame(timer.current);
@@ -118,7 +143,10 @@ export function DialOverlay({ g, me, onClose }: Props) {
         <p className="peek">You peeked: the {FACTION_SHORT[g.players[peek.event.target]!.factionId]} chose <b>{dialText(g, peek.event.dial, me)}</b>. You may change your dial.</p>
       )}
       <div className="dial-wrap">
-        <svg className="dial" viewBox="0 0 300 300" role="radiogroup" aria-label="Action sectors">
+        <svg className={`dial${slam ? ' slam' : ''}`} viewBox="0 0 300 300" role="radiogroup" aria-label="Action sectors"
+          onPointerDown={(e) => { dragging.current = true; const a = sectorAt(e); if (a) choose(a); }}
+          onPointerMove={(e) => { if (!dragging.current) return; const a = sectorAt(e); if (a) choose(a); }}
+          onPointerUp={() => { dragging.current = false; }} onPointerLeave={() => { dragging.current = false; }}>
           <circle cx="150" cy="150" r="148" className="dial-rim" />
           {options.map((o, i) => {
             const mid = (i / n) * Math.PI * 2 - Math.PI / 2;
@@ -129,8 +157,8 @@ export function DialOverlay({ g, me, onClose }: Props) {
               <g key={o.action} role="radio" aria-checked={on} aria-disabled={!o.available} tabIndex={0}
                 aria-label={`${ACTION_LABEL[o.action]}${o.available ? `, costs ${o.cost} Influence` : `, locked: ${o.reason}`}`}
                 className={`sector${on ? ' on' : ''}${o.available ? '' : ' locked'}`}
-                onClick={() => { setAction(o.action); navigator.vibrate?.(5); }}
-                onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && setAction(o.action)}>
+                onClick={() => choose(o.action)}
+                onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && choose(o.action)}>
                 <path d={wedge(i, n, 62, 146)} />
                 <text x={tx} y={ty - 4} textAnchor="middle">{ACTION_LABEL[o.action].replace('Self-', '')}</text>
                 <text x={tx} y={ty + 13} textAnchor="middle" className="sector-cost">{o.available ? (o.action === 'contribute' ? 'X' : o.cost) : '🔒'}</text>

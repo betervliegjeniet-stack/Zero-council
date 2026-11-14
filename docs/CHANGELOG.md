@@ -98,3 +98,45 @@ Dragging the dial with the finger is M5; in M4 a sector is chosen by tapping it.
   Total Extinction fell from 27% to 7%, and pools are mitigated 56-61% of the time at 4, 5 and 6 players.
 - `npm run sim` accepts `--config '{...}'` to try rule values without editing `config.ts`.
 - Card tests are pinned to the printed thresholds; 216 tests pass.
+
+## M5 — Animations and event playback
+- The store queues every engine event; `src/ui/game/Fx.tsx` plays them one group at a time with an
+  animation, a sound and a haptic. The board shows a lagging view (`src/fx/view.ts`), so Earth Health,
+  Influence, LP and the pool change when their event plays, not before. Prompts wait for the queue.
+- A Skip button drops everything still waiting; Fast mode halves every duration; all durations are in
+  `src/fx/animations.ts`.
+- Animations: Crisis draw (slide from the deck, two half-turn flip, screen shake and red flash for
+  catastrophic cards), letter-by-letter stage title, EH segments draining one by one with a shaking
+  skull, cogs flying between supply, seats and the pool, LP skulls popping in or cracking in two, Blight
+  cube drop, rival dials flipping in sequence and staying on their chips, action banners, FIZZLED / LIAR /
+  BETRAYED / SEALED / EXILED and other ink stamps, mat flip on Exile, padlock swing on Embargo, ballots
+  falling into the urn and a running tally at the count, Crucible bids arcing into the pit, the deletion
+  glitch, sheet and deal-note slides.
+- The dial can be dragged with a finger (a tick per sector passed), snaps with a spring, and slams
+  face-down when sealed.
+- Reduced motion (the Settings toggle or the system setting) replaces movement with fades.
+
+## M6 — Sound, ambience, haptics, Settings
+- `src/audio/sfx.ts`: all 22 effects of SPEC §11 synthesized with the Web Audio API (no audio files),
+  one shared AudioContext unlocked on the first tap, master / effects / ambience gains, cog-clink
+  throttle. Settings has a sound test that plays each one.
+- `src/audio/ambience.ts`: drone, recycler hum and far-off clanks, darker each stage, a heartbeat in
+  Stage IV, and only heartbeats in the Crucible. Sound pauses while the app is in the background.
+- `src/fx/haptics.ts`: dial snap, seal, EH loss and deletion patterns through `navigator.vibrate`.
+- Settings: effect and ambience volume, mute, haptics, reduced motion, fast animations, Whisper timer,
+  the seed, reset save.
+
+## M7 — Polish
+- Radio intro on the title screen: the last broadcast typed line by line with static, a vault-door thud,
+  then the title. A tap skips it. (The text is new; the GDD's script was not available.)
+- First-game tutorial: turn 1 is scripted with Water Leaking, a Councilor always offers a pact, and five
+  skippable coach marks explain Earth Health, the Crisis, the Whisper, the dial and the resolution.
+- End screen with stats, save and resume, the art prep script and the balance pass were done earlier.
+- Verified in a real browser: a touch-only script played full games to the end screen at 360x740,
+  390x844 and 430x932 with the intro, tutorial, playback and audio running, no console errors, and all
+  22 sound effects triggered. An accessibility sweep found no unnamed control, no touch target under
+  44 px and no text under 4.5:1 contrast.
+- Not verified: how the sounds and haptics feel on real phone hardware (the checks ran in headless
+  Chromium), audio unlock on iOS Safari specifically, and Lighthouse scores.
+
+M8 (Capacitor wrap for the app stores) is not started, as planned.
