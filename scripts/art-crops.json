@@ -1,0 +1,23 @@
+{
+  "_comment": "Crop boxes (pixels) of the illustration area of each card on the design-pack plates. Printed titles and rules text are left out: the game renders all text from data/cards.json.",
+  "plateDir": "design-pack/plates",
+  "outDir": "public/art/cards",
+  "width": 600,
+  "crops": [
+    { "plate": "plate-000.png", "x": 44, "y": 212, "w": 306, "h": 240, "ids": ["CR-02"], "title": "Oxygen Scrubber Failure" },
+    { "plate": "plate-000.png", "x": 722, "y": 212, "w": 304, "h": 290, "ids": ["CR-31"], "title": "Total Infrastructure Collapse" },
+    { "plate": "plate-000.png", "x": 1056, "y": 205, "w": 250, "h": 290, "ids": ["BS-04"], "title": "The Critical Debility" },
+    { "plate": "plate-001.png", "x": 46, "y": 212, "w": 300, "h": 276, "ids": ["BS-07"], "title": "The Hollow Echo" },
+    { "plate": "plate-001.png", "x": 386, "y": 200, "w": 300, "h": 300, "ids": ["CR-16"], "title": "The Blighted Harvest (propaganda variant)" },
+    { "plate": "plate-001.png", "x": 722, "y": 205, "w": 304, "h": 300, "ids": ["CR-09"], "title": "Signal Interference -> Static Interference" },
+    { "plate": "plate-001.png", "x": 1058, "y": 205, "w": 304, "h": 295, "ids": ["CR-23"], "title": "Neural Pathway Decay -> Neural Decay" },
+    { "plate": "plate-002.png", "x": 44, "y": 180, "w": 306, "h": 330, "ids": ["BS-01"], "title": "Night Terror" },
+    { "plate": "plate-002.png", "x": 384, "y": 225, "w": 304, "h": 270, "ids": ["BS-02"], "title": "Permanent Paralysis" },
+    { "plate": "plate-002.png", "x": 720, "y": 225, "w": 306, "h": 270, "ids": ["BS-03"], "title": "Cancer of the Soul" },
+    { "plate": "plate-002.png", "x": 1056, "y": 180, "w": 306, "h": 320, "ids": ["CR-39"], "title": "Hallucireality" },
+    { "plate": "plate-003.png", "x": 44, "y": 175, "w": 306, "h": 345, "ids": ["FIN-01"], "title": "Finale: Exile" },
+    { "plate": "plate-003.png", "x": 384, "y": 175, "w": 304, "h": 340, "ids": ["FIN-02"], "title": "Finale: Sacrifice" },
+    { "plate": "plate-003.png", "x": 720, "y": 175, "w": 306, "h": 340, "ids": ["FIN-03"], "title": "Finale: Purge" },
+    { "plate": "plate-003.png", "x": 1056, "y": 175, "w": 306, "h": 330, "ids": ["FIN-04", "CR-40"], "title": "Finale: Total Crucible" }
+  ]
+}

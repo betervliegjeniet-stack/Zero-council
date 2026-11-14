@@ -63,3 +63,29 @@ Not in M1 (by plan): card handlers, Urn votes, active abilities, deals (M2); AI 
   40-70% target. Two factions miss the 8% survivor floor; see the balance findings in
   `docs/DESIGN_QUESTIONS.md`.
 - Tests: 211 in total, including 500 AI games across 4, 5 and 6 players with no errors or violations.
+
+## M4 — Mobile UI
+- Every screen of SPEC §7 is wired to the engine: Title, Council Setup (faction carousel, player count,
+  difficulty, toggles, Whisper timer), the Bunker (Collapse Tracker, rivals row with hidden LP and a trust
+  line, Crisis card, Global Pool meter, modifier chips, Faction Mat with the phase button), the Whisper
+  deal board, the Secret Action Dial with Hold to Seal, the Black Urn, the Crucible, the end screen with
+  stats, the Codex (all 71 cards, rules, factions) and Settings.
+- `src/store/gameStore.ts` runs the AI Councilors between the human's inputs, staggers their Whisper
+  turns over the timer, answers the human's offers at once with a flavor line, applies the Bathroom
+  Break Rule on `visibilitychange`, and saves to `localStorage` after every change (Continue resumes).
+- `CardView` renders every card from `cards.json` (5:7, stage-coloured frame, EH and mitigation badges,
+  keyword bolding) and `CardBack`. A 16-motif procedural woodcut art system illustrates the 55 cards
+  without painted art; `scripts/prepare-art.mjs` crops the 16 painted cards from the design-pack plates.
+- `shortText` (140 characters or fewer) added to all 71 cards.
+- `docs/ART_PROMPTS.md`: an image prompt for each of the 55 cards without painted art.
+- Engine: `ActionResolved` is now emitted before the action's effects, so the UI can play events in order.
+- Checked in a real browser by a touch-only script that played six full games to the end screen at
+  360x740, 390x844 and 430x932 with no console errors and no horizontal overflow. A sweep of every screen
+  found no unnamed controls, no touch target under 44 px and no text under 4.5:1 contrast.
+- Not verified: the Lighthouse scores. Lighthouse could not be run in the build environment. The PWA
+  manifest, icons and service worker are in place.
+- Tests: 213, including whole games played through the store with a human seat.
+
+Deferred to later milestones by plan: the event playback queue and animations (M5; for now a
+"Resolution" report lists what happened each turn), sound and haptics (M6), tutorial and radio intro (M7).
+Dragging the dial with the finger is M5; in M4 a sector is chosen by tapping it.

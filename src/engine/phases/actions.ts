@@ -190,6 +190,8 @@ export function resolveAction(ctx: Ctx, seat: Seat, dial: Dial, queued = false):
   const cost = actionCost(s, seat, dial);
   if (cost > p.influence) return fizzle('Cannot pay');
   if (cost > 0) changeInfluence(ctx, seat, -cost, `cost:${dial.action}`);
+  // The action is announced first, then its effects follow (the UI plays events in order).
+  emit(ctx, { type: 'ActionResolved', seat, dial, cost });
 
   switch (dial.action) {
     case 'gather': {
@@ -242,5 +244,4 @@ export function resolveAction(ctx: Ctx, seat: Seat, dial: Dial, queued = false):
       setFlagStatus(ctx, seat, 'paralyzed', false);
       break;
   }
-  emit(ctx, { type: 'ActionResolved', seat, dial, cost });
 }

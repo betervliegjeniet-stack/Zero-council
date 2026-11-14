@@ -29,7 +29,8 @@
       "digitalRuling": "On reveal: every living player loses 1 Influence (min 0).",
       "flavor": "The lights dim for three seconds. When they return, half your ration slips are missing.",
       "artDirection": "Flickering fluorescent tube over a dark bunker table.",
-      "artFile": null
+      "artFile": null,
+      "shortText": "Every player loses 1 Influence."
     },
     {
       "id": "CR-02",
@@ -58,7 +59,8 @@
       "digitalRuling": "If the pool reaches 10: nothing happens. If not: EH -2 AND every player loses 1 LP. A player with 0 LP is Embargoed for 1 turn instead.",
       "flavor": "We traded clean air for comfort. We have neither now.",
       "artDirection": "Hazmat silhouettes turning a ruptured rusted valve leaking neon-green gas.",
-      "artFile": null
+      "artFile": null,
+      "shortText": "Pool 10 Influence, or EH -2 and every player loses 1 LP. A player at 0 LP is Embargoed instead."
     },
     {
       "id": "CR-03",
@@ -87,7 +89,8 @@
       "digitalRuling": "This turn the Salvage sector of every dial is locked (greyed out with a padlock).",
       "flavor": "Protein paste is down to grey sludge. Nobody builds a monument on an empty stomach.",
       "artDirection": "Empty metal ration tins stacked like skulls.",
-      "artFile": null
+      "artFile": null,
+      "shortText": "Salvage is locked this turn."
     },
     {
       "id": "CR-04",
@@ -116,7 +119,8 @@
       "digitalRuling": "All faction passives and actives are disabled until end of turn. Show a static/glitch overlay on every faction mat.",
       "flavor": "The archive terminals bleed static. Your title means nothing when the server forgets your clearance.",
       "artDirection": "Glitching CRT screen showing corrupted biometric files.",
-      "artFile": null
+      "artFile": null,
+      "shortText": "All faction abilities are disabled until end of turn."
     },
     {
       "id": "CR-05",
@@ -145,7 +149,8 @@
       "digitalRuling": "If the pool fails: EH -1 AND the LP leader(s) lose 2 Influence each (all tied leaders are hit).",
       "flavor": "Rust-colored water drips onto the war map, drowning the border lines.",
       "artDirection": "Cracked concrete ceiling dripping black water onto bunker blueprints.",
-      "artFile": null
+      "artFile": null,
+      "shortText": "Pool 6 Influence, or EH -1 and the LP leader loses 2 Influence."
     },
     {
       "id": "CR-06",
@@ -174,7 +179,8 @@
       "digitalRuling": "Gather yields 1 Influence this turn instead of 2.",
       "flavor": "The lower storage shafts have collapsed. Scavenging yields mostly dust and bone.",
       "artDirection": "Severed elevator cables hanging into a dark shaft.",
-      "artFile": null
+      "artFile": null,
+      "shortText": "Gather yields 1 Influence this turn."
     },
     {
       "id": "CR-07",
@@ -203,7 +209,8 @@
       "digitalRuling": "On reveal: EH -1. At resolution, 3 Influence are removed from the Global Pool before checking any threshold (no threshold this turn, so this only matters if a later effect adds one).",
       "flavor": "The surface shifts above us—a reminder that four miles of rock isn't deep enough.",
       "artDirection": "Dust falling from vibrating steel ceiling beams.",
-      "artFile": null
+      "artFile": null,
+      "shortText": "EH -1. The Global Pool leaks 3 Influence at resolution."
     },
     {
       "id": "CR-08",
@@ -232,7 +239,8 @@
       "digitalRuling": "During Phase 4: OPEN vote (ballots shown one by one in seat order, so later voters see earlier votes). Most votes gains 1 Bio Blight Cube. Ties: all tied players are Infected. No EH tie penalty (not an Urn vote). Players cannot vote for themselves.",
       "flavor": "It starts as a dry tickle in the throat. By morning, you're coughing up black oil.",
       "artDirection": "Close-up of a bloody handkerchief beside a metal microphone.",
-      "artFile": null
+      "artFile": null,
+      "shortText": "Open vote: the player with the most votes is Infected with 1 Blight Cube. Ties infect all tied."
     },
     {
       "id": "CR-09",
@@ -261,7 +269,8 @@
       "digitalRuling": "Dials are set and revealed one at a time in turn order. The human sees the dials of every player seated before them in turn order before choosing.",
       "flavor": "Every frequency is jammed with screaming white noise. You can see your neighbor's hand before you play yours.",
       "artDirection": "An old radio receiver with a tentacle emerging from the speaker grille.",
-      "artFile": "FavStyle_03_Signal_Interference_Watercolor.png"
+      "artFile": "FavStyle_03_Signal_Interference_Watercolor.png",
+      "shortText": "Dials are set and revealed one at a time, in turn order."
     },
     {
       "id": "CR-10",
@@ -291,7 +300,8 @@
       "digitalRuling": "Every player who Contributes at least 1 Influence gains +1 LP (whether or not the pool succeeds). If the pool fails: EH -2.",
       "flavor": "Someone has to wade into the sewage sumps. The survivors will remember who kept us from drowning in filth.",
       "artDirection": "Black sludge overflowing a grated bunker floor.",
-      "artFile": null
+      "artFile": null,
+      "shortText": "Pool 8 Influence, or EH -2. Every Contributor gains 1 LP."
     },
     {
       "id": "CR-11",
@@ -320,7 +330,8 @@
       "digitalRuling": "Actions chosen this turn are queued and resolve at the END of next turn's Phase 3, after next turn's actions. Costs are paid at resolution; if a player can't pay then, the queued action fizzles. Show the queued dials face-down on each mat.",
       "flavor": "Nobody trusts the dials anymore. Every order gets lost in three layers of counter-orders.",
       "artDirection": "Shadowy figures peering through keyhole slots in steel doors.",
-      "artFile": null
+      "artFile": null,
+      "shortText": "This turn's actions are delayed: they resolve after next turn's actions."
     },
     {
       "id": "CR-12",
@@ -350,7 +361,8 @@
       "digitalRuling": "Sabotage destroys 2 LP this turn (whatever happens with the pool). If the pool fails: EH -2.",
       "flavor": "With the med-bay out of sedatives, every wound is fatal.",
       "artDirection": "Overturned surgical tray with rusted scalpels.",
-      "artFile": null
+      "artFile": null,
+      "shortText": "Pool 10 Influence, or EH -2. Sabotage destroys 2 LP this turn."
     },
     {
       "id": "CR-13",
@@ -379,7 +391,8 @@
       "digitalRuling": "The LP leader(s) at the moment of reveal lose their faction abilities until end of turn. Announce it publicly ('The Council locks a clearance') without revealing the LP number.",
       "flavor": "Success breeds resentment. The Council quietly locks your clearance codes.",
       "artDirection": "A heavy padlock chained across a faction crest.",
-      "artFile": null
+      "artFile": null,
+      "shortText": "The LP leader loses their faction abilities until end of turn."
     },
     {
       "id": "CR-14",
@@ -409,7 +422,8 @@
       "digitalRuling": "Every Contributor pays 1 extra Influence on top of the amount they put in the pool (the surcharge goes to the supply, not the pool). If the pool fails: EH -3.",
       "flavor": "The auxiliary generators are burning oil mixed with grease. Keeping the lights on costs blood.",
       "artDirection": "Pressure gauge needle buried deep in the red zone.",
-      "artFile": null
+      "artFile": null,
+      "shortText": "Pool 12 Influence, or EH -3. Every Contributor pays 1 extra Influence."
     },
     {
       "id": "CR-15",
@@ -438,7 +452,8 @@
       "digitalRuling": "On reveal, at the same time: every player with at least 1 LP gives 1 LP to the player on their LEFT (seat index +1). Calculate all transfers first, then apply them.",
       "flavor": "The bulkhead locks failed simultaneously. Everyone's vault is open to their neighbor.",
       "artDirection": "Blown-open vault door with smoke pouring out.",
-      "artFile": null
+      "artFile": null,
+      "shortText": "Every player with LP gives 1 LP to the player on their left."
     },
     {
       "id": "CR-16",
@@ -467,7 +482,8 @@
       "digitalRuling": "Always: every Infected player loses 1 extra LP at resolution. If the pool fails: EH -2. (The 'or LP -4 randomly distributed' variant is an optional setting: harshMode = 4 single-LP hits on random living players instead of EH -2.)",
       "flavor": "The soil remembers our sins. And it will not forget.",
       "artDirection": "Hydroponic corn stalks screaming with human skulls in the husks.",
-      "artFile": "FavStyle_02_The_Blighted_Harvest_Propaganda.png"
+      "artFile": "FavStyle_02_The_Blighted_Harvest_Propaganda.png",
+      "shortText": "Pool 10 Influence, or EH -2. Every Infected player loses 1 extra LP."
     },
     {
       "id": "CR-17",
@@ -496,7 +512,8 @@
       "digitalRuling": "On reveal: the lowest-LP player(s) gain +3 Influence each. The engine announces WHO got it, which leaks information about LP.",
       "flavor": "An unencrypted emergency cache opens for the weakest rat in the maze.",
       "artDirection": "A crimson flare burning in a pitch-black corridor.",
-      "artFile": null
+      "artFile": null,
+      "shortText": "The player with the fewest LP gains 3 Influence."
     },
     {
       "id": "CR-18",
@@ -525,7 +542,8 @@
       "digitalRuling": "If the pool fails: EH -4.",
       "flavor": "Hairline fractures spiderweb across the primary containment dome.",
       "artDirection": "Massive concrete pillar splitting down the center.",
-      "artFile": null
+      "artFile": null,
+      "shortText": "Pool 15 Influence, or EH -4."
     },
     {
       "id": "CR-19",
@@ -554,7 +572,8 @@
       "digitalRuling": "At the end of the Whisper phase, every player publicly announces an action (speech bubble). The human picks one from a list. AIs may lie (chance = 1 - honesty). Then dials are set as normal; reveal shows liars with a red 'LIAR' stamp, and each lie lowers trust.",
       "flavor": "Say what you're going to do, Councilor. Let's see how smoothly the poison rolls off your tongue.",
       "artDirection": "Two silhouettes whispering behind cupped hands.",
-      "artFile": null
+      "artFile": null,
+      "shortText": "After the Whisper, everyone announces an action. Liars are exposed at the reveal."
     },
     {
       "id": "CR-20",
@@ -583,7 +602,8 @@
       "digitalRuling": "Phase 4 'Volunteer' prompt: in turn order, each player may sacrifice 2 LP to seal the door. The human is asked when their seat comes up; AIs decide by cooperation and EH danger. The first volunteer pays and the crisis is averted. If nobody volunteers: EH -3.",
       "flavor": "Someone has to stand on the wrong side of the bulkhead while it closes.",
       "artDirection": "A hand pressed against reinforced glass as red warning lights flash.",
-      "artFile": null
+      "artFile": null,
+      "shortText": "One volunteer sacrifices 2 LP to seal the door, or EH -3."
     },
     {
       "id": "CR-21",
@@ -613,7 +633,8 @@
       "digitalRuling": "If the pool fails: EH -3 AND the main game ends right away; go to The Crucible. Use the warning UI (pulsing red border, alarm sound) during this turn.",
       "flavor": "The clock isn't ticking, Councilor. It's screaming.",
       "artDirection": "A cracked pocket watch melting into black tar.",
-      "artFile": null
+      "artFile": null,
+      "shortText": "Pool 10 Influence, or EH -3 and the main game ends at once."
     },
     {
       "id": "CR-22",
@@ -642,7 +663,8 @@
       "digitalRuling": "On reveal: the player(s) with the least Influence are Exiled (permanent, faction mat flips face-down).",
       "flavor": "When resources run thin, the weak aren't carried—they're jettisoned.",
       "artDirection": "A lone figure locked outside a heavy steel airlock.",
-      "artFile": null
+      "artFile": null,
+      "shortText": "The player with the least Influence is Exiled: no faction abilities, for good."
     },
     {
       "id": "CR-23",
@@ -671,7 +693,8 @@
       "digitalRuling": "Dials are spun for everyone: the dial animates a free spin and lands on a random LEGAL action. Random targets/amounts: Sabotage hits a random rival; Contribute puts in a random 1..current Influence. Self-Quarantine is only possible if Infected.",
       "flavor": "The network didn't fail us. We failed it, and now it forgets its own name.",
       "artDirection": "Human skull split open revealing tangled, sparking wires and exposed brain.",
-      "artFile": "FavStyle_04_Neural_Pathway_Decay_CyberGlitch.png"
+      "artFile": "FavStyle_04_Neural_Pathway_Decay_CyberGlitch.png",
+      "shortText": "Every dial spins to a random legal action."
     },
     {
       "id": "CR-24",
@@ -700,7 +723,8 @@
       "digitalRuling": "Gather is locked this turn.",
       "flavor": "Main power is dead. You can't scavenge what you can't see.",
       "artDirection": "Pitch-black card art with two terrified white eyes.",
-      "artFile": null
+      "artFile": null,
+      "shortText": "Gather is locked this turn."
     },
     {
       "id": "CR-25",
@@ -729,7 +753,8 @@
       "digitalRuling": "Phase 4 Urn vote: the target permanently loses all faction abilities (same as Exiled). Tie: no purge, EH -3.",
       "flavor": "Traitor is just a word for whoever loses the vote.",
       "artDirection": "The Black Voting Urn overflowing with tarnished cogs.",
-      "artFile": null
+      "artFile": null,
+      "shortText": "Urn vote: the target loses all faction abilities for good. Tie: EH -3."
     },
     {
       "id": "CR-26",
@@ -758,7 +783,8 @@
       "digitalRuling": "Phase 3 adds an extra secret 'LP Pledge' stepper (0..your LP) next to the dial. If pledges total 5 or more, they are destroyed and the crisis is averted. If not, pledges are REFUNDED (setting lpPledgeRefundOnFail, default true) and EH -5.",
       "flavor": "Radiation pierces the upper vents. Only burning our own legacy can shield the core.",
       "artDirection": "Blinding white light searing through bunker ventilation shafts.",
-      "artFile": null
+      "artFile": null,
+      "shortText": "Secretly pledge LP. 5 or more in total averts it; otherwise pledges are refunded and EH -5."
     },
     {
       "id": "CR-27",
@@ -787,7 +813,8 @@
       "digitalRuling": "Sabotage costs 0 Influence this turn (Embargo surcharges still apply).",
       "flavor": "The ammunition lockers are unlocked. Murder is free until midnight.",
       "artDirection": "Rusted knives and crowbars laid out on the Council table.",
-      "artFile": null
+      "artFile": null,
+      "shortText": "Sabotage costs 0 Influence this turn."
     },
     {
       "id": "CR-28",
@@ -816,7 +843,8 @@
       "digitalRuling": "On reveal: each player loses floor(Influence/5) LP.",
       "flavor": "Greed is a terminal symptom. The heavier your pockets, the faster you bleed out.",
       "artDirection": "Metal gears tearing through pale skin.",
-      "artFile": null
+      "artFile": null,
+      "shortText": "Each player loses 1 LP for every 5 Influence they hold."
     },
     {
       "id": "CR-29",
@@ -846,7 +874,8 @@
       "digitalRuling": "This turn no LP can be gained by any means (Salvage is locked; LP transfers in still happen as transfers, but brand-new LP cannot be created). If the pool fails: EH -3.",
       "flavor": "Through the vents comes the sound of wind howling over glassed cities.",
       "artDirection": "Desolate ash wasteland under a bruised purple sky.",
-      "artFile": null
+      "artFile": null,
+      "shortText": "Pool 12 Influence, or EH -3. No LP can be gained this turn."
     },
     {
       "id": "CR-30",
@@ -875,7 +904,8 @@
       "digitalRuling": "On reveal, at the same time: every player passes ALL their Influence to the player on their RIGHT (seat index -1).",
       "flavor": "You wake up holding your enemy's keys, wearing your enemy's coat.",
       "artDirection": "Shattered mirror reflecting six distorted faces.",
-      "artFile": null
+      "artFile": null,
+      "shortText": "Every player passes ALL their Influence to the player on their right."
     },
     {
       "id": "CR-31",
@@ -904,7 +934,8 @@
       "digitalRuling": "On reveal: EH -2. Every player gets the GatherLocked status. A locked player sees a 'Repair' sector instead of Gather: it costs 3 Influence and uses the action. GatherLocked lasts until repaired (it can carry over if System Reboot extends the game).",
       "flavor": "The network didn't fail us. We failed it.",
       "artDirection": "Collapsing skyscrapers and severed server cables.",
-      "artFile": null
+      "artFile": null,
+      "shortText": "EH -2. Gather is broken for everyone until they spend an action and 3 Influence to Repair."
     },
     {
       "id": "CR-32",
@@ -933,7 +964,8 @@
       "digitalRuling": "On reveal: set EH to 1.",
       "flavor": "The life-support hum stops. For the first time in years, you can hear your own heartbeat.",
       "artDirection": "Flatlining green oscilloscope line on a dark monitor.",
-      "artFile": null
+      "artFile": null,
+      "shortText": "Earth Health is set to 1."
     },
     {
       "id": "CR-33",
@@ -962,7 +994,8 @@
       "digitalRuling": "Salvage needs a target this turn: you gain 1 LP and the target loses 2 LP. Salvage with no living rival who has LP is not allowed.",
       "flavor": "There is nothing left to scavenge except each other.",
       "artDirection": "Bone-white skulls arranged like a dinner plate.",
-      "artFile": null
+      "artFile": null,
+      "shortText": "Salvage needs a victim this turn: you gain 1 LP, they lose 2 LP."
     },
     {
       "id": "CR-34",
@@ -991,7 +1024,8 @@
       "digitalRuling": "On reveal: every player's Influence becomes 0. Anything already in the Global Pool is also wiped.",
       "flavor": "An electromagnetic shockwave turns every currency in the bunker to dead slag.",
       "artDirection": "Black hole vortex consuming metal gears.",
-      "artFile": null
+      "artFile": null,
+      "shortText": "Every player's Influence becomes 0."
     },
     {
       "id": "CR-35",
@@ -1020,7 +1054,8 @@
       "digitalRuling": "On reveal: if EH is already 1, go to The Crucible straight away. Otherwise EH -4.",
       "flavor": "One last gasp of stale, metallic air.",
       "artDirection": "Cracked oxygen mask lying in ash.",
-      "artFile": null
+      "artFile": null,
+      "shortText": "EH -4. If EH is already 1, go straight to the Crucible."
     },
     {
       "id": "CR-36",
@@ -1049,7 +1084,8 @@
       "digitalRuling": "Skip Phase 2 entirely. Show a 'DEAD FREQUENCY' screen with only static noise for 3 seconds, then go to the dials.",
       "flavor": "The intercoms are dead. Make your murder in silence.",
       "artDirection": "Screaming figure trapped in a narrow stone tunnel (woodcut style).",
-      "artFile": null
+      "artFile": null,
+      "shortText": "The Whisper Campaign is skipped this turn."
     },
     {
       "id": "CR-37",
@@ -1078,7 +1114,8 @@
       "digitalRuling": "On reveal: every player with fewer than 3 LP is eliminated right away (deletion animation).",
       "flavor": "History has no room for footnotes.",
       "artDirection": "Giant iron sieve filtering skulls into a furnace.",
-      "artFile": null
+      "artFile": null,
+      "shortText": "Every player with fewer than 3 LP is deleted at once."
     },
     {
       "id": "CR-38",
@@ -1107,7 +1144,8 @@
       "digitalRuling": "Sabotage destroys 3 LP this turn.",
       "flavor": "Every strike is a coup de grâce.",
       "artDirection": "Jagged lightning shattering a stone monument.",
-      "artFile": null
+      "artFile": null,
+      "shortText": "Sabotage destroys 3 LP this turn."
     },
     {
       "id": "CR-39",
@@ -1136,7 +1174,8 @@
       "digitalRuling": "Phase 4 Urn vote: the target loses all faction abilities permanently (Exiled). Tie: EH -4.",
       "flavor": "Which world did you wake up in today, Councilor? Is that Earth Health real, or are you?",
       "artDirection": "Councilors seated around a clockwork vortex surrounded by ghosts.",
-      "artFile": "BioSchism_04_Hallucireality.png"
+      "artFile": "BioSchism_04_Hallucireality.png",
+      "shortText": "Urn vote: the target is Exiled. Tie: EH -4."
     },
     {
       "id": "CR-40",
@@ -1165,7 +1204,8 @@
       "digitalRuling": "On reveal: the main game ends. The 2 highest-LP players enter The Crucible (everyone tied for 1st or 2nd also enters). All others are deleted.",
       "flavor": "The final schism isn't about the world, but who's left to scream about it.",
       "artDirection": "Six blindfolded Councilors screaming in unison with occult symbols on their blindfolds.",
-      "artFile": "Finale_04_Game_Breaker_Total_Crucible.png"
+      "artFile": "Finale_04_Game_Breaker_Total_Crucible.png",
+      "shortText": "The main game ends. The two highest-LP players enter the Crucible. Everyone else is deleted."
     },
     {
       "id": "BS-01",
@@ -1194,7 +1234,8 @@
       "digitalRuling": "On reveal: EH -2. Actions are random, same handling as CR-23 Neural Decay. Use a different animation: the dial is covered by a purple fog and is 'drawn' from a shuffled stack of 5 action tokens.",
       "flavor": "Close your eyes; the void is waiting. But don't you dare fall asleep.",
       "artDirection": "Shadow demons looming over a glowing purple skeleton in a hospital bed.",
-      "artFile": "BioSchism_01_Night_Terror.png"
+      "artFile": "BioSchism_01_Night_Terror.png",
+      "shortText": "EH -2. Every dial is drawn at random."
     },
     {
       "id": "BS-02",
@@ -1223,7 +1264,8 @@
       "digitalRuling": "On reveal: EH -1. At resolution, whoever put the least Influence into the pool this turn (non-contributors count as 0; all tied players are hit) gets Paralyzed: Salvage is locked until they pick the 'Medical Tax' option (pay 5 Influence, uses the action).",
       "flavor": "The mind can scream, Councilor. The body has already given its final verdict.",
       "artDirection": "Cybernetic-plated patient frozen upright flanked by flatlining monitors.",
-      "artFile": "BioSchism_02_Permanent_Paralysis.png"
+      "artFile": "BioSchism_02_Permanent_Paralysis.png",
+      "shortText": "EH -1. Whoever puts the least into the pool is Paralyzed: no Salvage until they pay 5 Influence."
     },
     {
       "id": "BS-03",
@@ -1252,7 +1294,8 @@
       "digitalRuling": "On reveal: EH -3. Anyone who Sabotages this turn gains 1 Bio Blight Cube and the status NoGatherNextTurn.",
       "flavor": "We hoarded our history, and our sins became a terminal infection. We were always dying from within.",
       "artDirection": "Four-eyed pale face dissolving into a spiraling black void.",
-      "artFile": "BioSchism_03_Cancer_of_the_Soul.png"
+      "artFile": "BioSchism_03_Cancer_of_the_Soul.png",
+      "shortText": "EH -3. Anyone who Sabotages is Infected and cannot Gather next turn."
     },
     {
       "id": "BS-04",
@@ -1281,7 +1324,8 @@
       "digitalRuling": "On reveal: EH -1. Phase 4 Urn vote: the target gains 1 NEURO Blight Cube (it costs 1 Influence per turn instead of 1 LP). Tie: EH -3 (standard Urn tie penalty).",
       "flavor": "Which world did you wake up in today, Councilor? Or are you just a corrupted script?",
       "artDirection": "Surgical robot dissecting a glowing wireframe human torso.",
-      "artFile": null
+      "artFile": null,
+      "shortText": "EH -1. Urn vote: the target gains a Neuro Blight Cube (-1 Influence per turn). Tie: EH -3."
     },
     {
       "id": "BS-05",
@@ -1310,7 +1354,8 @@
       "digitalRuling": "On reveal: EH -2. At resolution, the highest-Influence player (ties: first in turn order) chooses: sacrifice 3 LP, or every living player gains 1 Bio Blight Cube. If they have fewer than 3 LP they cannot sacrifice.",
       "flavor": "Our biology is failing. The machines are the only thing holding our skeletons together now.",
       "artDirection": "Macro arm with obsidian black veins and gears surfacing through skin.",
-      "artFile": null
+      "artFile": null,
+      "shortText": "EH -2. The richest player sacrifices 3 LP, or every player is Infected."
     },
     {
       "id": "BS-06",
@@ -1339,7 +1384,8 @@
       "digitalRuling": "On reveal: EH -3. At resolution, each player secretly chooses: pay 5 Influence, or lose 2 LP AND have abilities disabled for 2 turns. Players with fewer than 5 Influence must take the second option.",
       "flavor": "Thirst is a powerful motivator. Even for poison.",
       "artDirection": "Water ration cup teeming with black oily parasites.",
-      "artFile": null
+      "artFile": null,
+      "shortText": "EH -3. Each player pays 5 Influence, or loses 2 LP and their abilities for 2 turns."
     },
     {
       "id": "BS-07",
@@ -1368,7 +1414,8 @@
       "digitalRuling": "Phase 4 Urn vote: the target is Silenced next turn (cannot send, receive or accept Whisper deals; their portrait shows a stitched mouth). Tie: EH -3.",
       "flavor": "The bunker is large enough for all, but it is empty.",
       "artDirection": "Stark black-and-white linocut of a screaming figure in a cavern.",
-      "artFile": "FavStyle_01_The_Hollow_Echo_Woodcut.png"
+      "artFile": "FavStyle_01_The_Hollow_Echo_Woodcut.png",
+      "shortText": "Urn vote: the target is Silenced next turn and cannot make deals. Tie: EH -3."
     },
     {
       "id": "FIN-01",
@@ -1398,7 +1445,8 @@
       "digitalRuling": "Urn vote. The winner is Exiled UNLESS they pay 10 LP, which forces a Tie. On any tie (natural or forced): the Mandate fails and EH is set to 2.",
       "flavor": "The final consensus is a question of geometry, not geography.",
       "artDirection": "Cracked Earth bound in heavy iron chains with an X lock.",
-      "artFile": "Finale_01_Mandate_Exile.png"
+      "artFile": "Finale_01_Mandate_Exile.png",
+      "shortText": "Urn vote: the target is Exiled, unless they pay 10 LP to force a tie. Any tie: EH is set to 2."
     },
     {
       "id": "FIN-02",
@@ -1428,7 +1476,8 @@
       "digitalRuling": "EH -5 first. Then every player blind-bids Influence (fist-reveal UI). All bids are spent. The single highest bidder takes ALL LP from the two lowest bidders. If the top is tied, nobody steals. If the low end is tied, everyone tied for the two lowest places is drained.",
       "flavor": "We were always a single symptom away from this terminal verdict.",
       "artDirection": "Giant skull looming over six Council silhouettes.",
-      "artFile": "Finale_02_Mandate_Sacrifice.png"
+      "artFile": "Finale_02_Mandate_Sacrifice.png",
+      "shortText": "EH -5. Blind-bid Influence. The highest bidder takes ALL LP from the two lowest bidders."
     },
     {
       "id": "FIN-03",
@@ -1458,7 +1507,8 @@
       "digitalRuling": "Open a special 1-round pool (each player secretly picks 0..Influence). If the total reaches 15, the purge is averted (Influence spent). Otherwise a random living faction (seeded RNG, shown with a roulette animation) loses all abilities permanently.",
       "flavor": "The clock isn't ticking, Councilor. It's remembering.",
       "artDirection": "Pocket watch collapsing into a purple singularity.",
-      "artFile": "Finale_03_Apex_Mandate_Purge.png"
+      "artFile": "Finale_03_Apex_Mandate_Purge.png",
+      "shortText": "Secretly pool 15 Influence, or a random faction loses its abilities for good."
     },
     {
       "id": "FIN-04",
@@ -1488,7 +1538,8 @@
       "digitalRuling": "Same as CR-40: the main game ends, the top 2 LP players (plus ties) enter The Crucible, and everyone else is deleted.",
       "flavor": "The final schism isn't about the world, but who's left to scream about it.",
       "artDirection": "Six blindfolded Councilors screaming in agony.",
-      "artFile": "Finale_04_Game_Breaker_Total_Crucible.png"
+      "artFile": "Finale_04_Game_Breaker_Total_Crucible.png",
+      "shortText": "The main game ends. The two highest-LP players enter the Crucible. Everyone else is deleted."
     },
     {
       "id": "MAN-01",
@@ -1517,7 +1568,8 @@
       "digitalRuling": "Urn vote for a faction. The winner is Exiled permanently. Tie: EH -3, mandate fails.",
       "flavor": "Your seat remains, Councilor, but your voice has been revoked.",
       "artDirection": "Stamp of 'EXILED' burned into a brass nameplate.",
-      "artFile": null
+      "artFile": null,
+      "shortText": "Urn vote: the target is Exiled for good. Tie: EH -3."
     },
     {
       "id": "MAN-02",
@@ -1546,7 +1598,8 @@
       "digitalRuling": "Aye/Nay. If Aye wins: every living player loses 2 LP (as much as they have) and EH +4 (cap at the starting EH). Tie: EH -3.",
       "flavor": "The bunker runs on bone meal now.",
       "artDirection": "Skull crushed inside a hydraulic press.",
-      "artFile": null
+      "artFile": null,
+      "shortText": "Aye or Nay. Aye: every player loses 2 LP and EH +4. Tie: EH -3."
     },
     {
       "id": "MAN-03",
@@ -1575,7 +1628,8 @@
       "digitalRuling": "Urn vote. The target's Influence is shared out evenly among living rivals; the remainder goes back to the supply. Tie: EH -3.",
       "flavor": "Private property is a luxury for civilizations with a tomorrow.",
       "artDirection": "Hands ripping cogs out of an open chest.",
-      "artFile": null
+      "artFile": null,
+      "shortText": "Urn vote: the target's Influence is shared out among their rivals. Tie: EH -3."
     },
     {
       "id": "MAN-04",
@@ -1604,7 +1658,8 @@
       "digitalRuling": "Urn vote. The target gains 2 Bio Blight Cubes and NoTrade for 2 turns (cannot send or accept Whisper deals). Tie: EH -3.",
       "flavor": "Weld the door shut. We'll check for a pulse next week.",
       "artDirection": "Welding torch sealing a bulkhead door.",
-      "artFile": null
+      "artFile": null,
+      "shortText": "Urn vote: the target gains 2 Blight Cubes and cannot make deals for 2 turns. Tie: EH -3."
     },
     {
       "id": "MAN-05",
@@ -1633,7 +1688,8 @@
       "digitalRuling": "Urn vote. The target loses 3 LP and every other living player gains +1 LP. Tie: EH -3.",
       "flavor": "Someone has to wear the blame so the rest of us can sleep.",
       "artDirection": "A lone figure pointed at by five shadowed hands.",
-      "artFile": null
+      "artFile": null,
+      "shortText": "Urn vote: the target loses 3 LP and everyone else gains 1 LP. Tie: EH -3."
     },
     {
       "id": "MAN-06",
@@ -1662,7 +1718,8 @@
       "digitalRuling": "Aye/Nay. If Aye: EH +3 now and Gather yields 0 next turn (GatherYield0 status on every player for 1 turn). Tie: EH -3.",
       "flavor": "Starve the rats to save the ship.",
       "artDirection": "Padlocked grain silo.",
-      "artFile": null
+      "artFile": null,
+      "shortText": "Aye or Nay. Aye: EH +3, and Gather yields nothing next turn. Tie: EH -3."
     },
     {
       "id": "MAN-07",
@@ -1691,7 +1748,8 @@
       "digitalRuling": "Urn vote. If the top player has 4+ votes (Directorate counts double), they lose ceil(LP/2). If the top is tied: EH -4. If the top has fewer than 4 votes: nothing happens (not a tie).",
       "flavor": "Democracy is just four wolves and a lamb voting on dinner.",
       "artDirection": "Noose hanging from a pipe.",
-      "artFile": null
+      "artFile": null,
+      "shortText": "Urn vote: with 4 or more votes, the target loses half their LP. Tie: EH -4."
     },
     {
       "id": "MAN-08",
@@ -1720,7 +1778,8 @@
       "digitalRuling": "Aye/Nay. If Aye: remove every Blight Cube and Embargo from all players. Tie: EH -2.",
       "flavor": "A brief, suspicious truce in the dark.",
       "artDirection": "White flag stained with soot.",
-      "artFile": null
+      "artFile": null,
+      "shortText": "Aye or Nay. Aye: every Blight Cube and Embargo is removed. Tie: EH -2."
     },
     {
       "id": "MAN-09",
@@ -1749,7 +1808,8 @@
       "digitalRuling": "Each ballot names one faction; the top 2 vote-getters are Conscripted. A tie that makes the 2nd place unclear counts as a tie: EH -3. Next turn, the Conscripted players' dials are forced to Contribute ALL their Influence.",
       "flavor": "To the front lines of the scrubbers, Councilor.",
       "artDirection": "Two numbered dog tags.",
-      "artFile": null
+      "artFile": null,
+      "shortText": "Urn vote: the top two must Contribute ALL their Influence next turn. Tie: EH -3."
     },
     {
       "id": "MAN-10",
@@ -1778,7 +1838,8 @@
       "digitalRuling": "Aye/Nay. If Aye: next turn's Crisis is shown face-down (card back with '???'). The pool threshold is shown as '?' and the card flips at Phase 4. Tie: EH -3.",
       "flavor": "What you don't know will still kill you.",
       "artDirection": "Blindfold over an eye.",
-      "artFile": null
+      "artFile": null,
+      "shortText": "Aye or Nay. Aye: next turn's Crisis is dealt face-down. Tie: EH -3."
     },
     {
       "id": "MAN-11",
@@ -1807,7 +1868,8 @@
       "digitalRuling": "Urn vote. The target's LP is revealed to everyone and they lose floor(Influence/3) LP. Tie: EH -3.",
       "flavor": "Open the vaults. Let's see who's been hoarding.",
       "artDirection": "Magnifying glass over a ledger of skulls.",
-      "artFile": null
+      "artFile": null,
+      "shortText": "Urn vote: the target's LP is revealed and they lose 1 LP per 3 Influence. Tie: EH -3."
     },
     {
       "id": "MAN-12",
@@ -1836,7 +1898,8 @@
       "digitalRuling": "Urn vote. The target is Embargoed for the next 2 turns. Tie: EH -3.",
       "flavor": "Breathe shallower, Councilor. You're using up my air.",
       "artDirection": "Clamped rubber air hose.",
-      "artFile": null
+      "artFile": null,
+      "shortText": "Urn vote: the target is Embargoed for the next 2 turns. Tie: EH -3."
     },
     {
       "id": "MAN-13",
@@ -1865,7 +1928,8 @@
       "digitalRuling": "Each player secretly picks ONE of their two neighbours. Any player picked by BOTH neighbours loses 4 LP. No tie penalty for this card (the -3 tie value is ignored). In a 2-player edge case, skip the card.",
       "flavor": "Betrayal works best in stereo.",
       "artDirection": "Two daggers crossing behind a chair.",
-      "artFile": null
+      "artFile": null,
+      "shortText": "Secretly pick one neighbour. Anyone picked by BOTH neighbours loses 4 LP."
     },
     {
       "id": "MAN-14",
@@ -1894,7 +1958,8 @@
       "digitalRuling": "Aye/Nay. If Aye: every discarded Crisis card is shuffled into the Stage III pile. Turns 7-9 draw from that pile (see deck rules). Tie: EH -3.",
       "flavor": "The nightmare repeats.",
       "artDirection": "Circular arrow etched in rust.",
-      "artFile": null
+      "artFile": null,
+      "shortText": "Aye or Nay. Aye: every discarded Crisis is shuffled into the Stage III pile. Tie: EH -3."
     },
     {
       "id": "MAN-15",
@@ -1923,7 +1988,8 @@
       "digitalRuling": "The target is fixed: the lowest-LP player (ties: random). Ballot options are MERCY or EFFICIENCY. Mercy wins: the target gains +3 LP. Efficiency wins: the target is eliminated if EH < 8, otherwise nothing happens. Tie: EH -3. The target votes too.",
       "flavor": "Kindness or efficiency—choose.",
       "artDirection": "Syringe beside a revolver.",
-      "artFile": null
+      "artFile": null,
+      "shortText": "The poorest player is on trial. Mercy: they gain 3 LP. Efficiency: deleted if EH is below 8. Tie: EH -3."
     },
     {
       "id": "MAN-16",
@@ -1952,7 +2018,8 @@
       "digitalRuling": "Urn vote. The target cannot Sabotage or Salvage next turn. Tie: EH -3.",
       "flavor": "Hands on the table where we can see them.",
       "artDirection": "Iron shackles bolted to a desk.",
-      "artFile": null
+      "artFile": null,
+      "shortText": "Urn vote: the target cannot Sabotage or Salvage next turn. Tie: EH -3."
     },
     {
       "id": "MAN-17",
@@ -1981,7 +2048,8 @@
       "digitalRuling": "Aye/Nay. If Aye: the Turn Marker moves forward 1 (one turn is skipped; the stage for each turn is taken from the new turn number). Tie: EH -5.",
       "flavor": "Burn the engines out. Let's get this over with.",
       "artDirection": "Clock hands spinning wildly.",
-      "artFile": null
+      "artFile": null,
+      "shortText": "Aye or Nay. Aye: one turn is skipped. Tie: EH -5."
     },
     {
       "id": "MAN-18",
@@ -2010,7 +2078,8 @@
       "digitalRuling": "Urn vote. Each other living player takes 1 Influence from the target, in turn order, until the target runs out. Tie: EH -3.",
       "flavor": "A thousand tiny cuts.",
       "artDirection": "Leeches clinging to a metal cog.",
-      "artFile": null
+      "artFile": null,
+      "shortText": "Urn vote: each rival takes 1 Influence from the target until it runs out. Tie: EH -3."
     },
     {
       "id": "MAN-19",
@@ -2040,7 +2109,8 @@
       "digitalRuling": "Urn vote. Whisper deals are disabled while voting. The target swaps LP totals with the player on their LEFT. Tie: EH -3.",
       "flavor": "Fate decided in dead silence.",
       "artDirection": "Two scales balancing skulls.",
-      "artFile": null
+      "artFile": null,
+      "shortText": "Urn vote: the target swaps LP totals with the player on their left. Tie: EH -3."
     },
     {
       "id": "MAN-20",
@@ -2069,7 +2139,8 @@
       "digitalRuling": "Urn vote for a faction. Unanimous means every ballot EXCEPT the target's own names the same target. If unanimous: the target loses 2 LP [DESIGN GAP: the card does not say what success does; this is a default you can change]. If not unanimous: EH -4 and every living player loses 1 LP.",
       "flavor": "Agree, or burn together.",
       "artDirection": "Six hands hovering over a red detonation switch.",
-      "artFile": null
+      "artFile": null,
+      "shortText": "Urn vote. Unanimous: the target loses 2 LP. Otherwise EH -4 and every player loses 1 LP."
     }
   ]
 }
