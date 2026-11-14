@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { runGame } from '../sim/runner';
 
-describe('headless random-action games (M1)', () => {
+describe('headless random-action games with every card, vote, ability and deal active', () => {
   for (const [playerCount, games] of [[6, 300], [5, 100], [4, 100]] as const) {
     it(`${games} games with ${playerCount} players run from setup to the end of the Crucible`, () => {
       const outcomes = { survivor: 0, extinction: 0 };

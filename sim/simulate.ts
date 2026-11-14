@@ -1,5 +1,5 @@
 // Headless batch runner: `npm run sim -- --games 1000 --players 6 --seed 1 [--verbose]`.
-// M1: random-action players. The AI Councilors and the full balance report arrive in M3.
+// Until M3 the seats are random-action players; the AI Councilors and the full balance report arrive then.
 import { FACTIONS, getCard, getFaction, type GameEvent, type GameState } from '../src/engine';
 import { runGame } from './runner';
 
@@ -20,7 +20,12 @@ function describe(e: GameEvent, s: GameState): string | null {
   switch (e.type) {
     case 'TurnStarted': return `\n== TURN ${e.turn} (Stage ${'I'.repeat(e.stage).replace('IIII', 'IV')}) first player: ${name(s, e.firstSeat)}`;
     case 'CardRevealed': return `  ${e.deck.toUpperCase()}: ${e.cardId} ${getCard(e.cardId).title}`;
-    case 'CardSkipped': return `  (${e.cardId} not resolved: ${e.reason})`;
+    case 'CardSkipped': return `  (${e.cardId} skipped: ${e.reason})`;
+    case 'VoteResult': return `  VOTE ${e.cardId}: ${e.result.tie ? 'TIE' : e.result.winners.map((w) => (/^\d+$/.test(w) ? name(s, Number(w)) : w.toUpperCase())).join(' + ') || 'no result'}${e.result.brokenBy !== null ? ' (tie broken by the Directorate)' : ''}`;
+    case 'AbilityUsed': return `  ${name(s, e.seat)} uses ${e.ability}${e.target !== undefined ? ` on ${name(s, e.target)}` : ''}`;
+    case 'DealAccepted': return `  Deal sealed: ${name(s, e.proposer)} + ${name(s, e.partner)}`;
+    case 'DealBroken': return `  BETRAYED by ${e.breakers.map((b) => name(s, b)).join(', ')}${e.binding ? ' (Binding Oath: -2 LP)' : ''}`;
+    case 'StatusApplied': return `  ${name(s, e.seat)}: ${e.status}`;
     case 'EHChanged': return `  EH ${e.from} -> ${e.to} (${e.cause})`;
     case 'ActionResolved': {
       const d = e.dial;

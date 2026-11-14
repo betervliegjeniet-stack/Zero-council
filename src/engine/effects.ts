@@ -108,6 +108,25 @@ export function eliminate(ctx: Ctx, seat: Seat, cause: string): void {
   p.eliminatedTurn = s.turn;
   p.dial = null;
   p.dialLocked = false;
+  p.queuedDial = null;
   s.pending = s.pending.filter((d) => d.seat !== seat);
   emit(ctx, { type: 'PlayerDeleted', seat, cause });
+}
+
+/** Ends the main game because a card said so (the Crucible follows at the end-of-turn gate). */
+export function endMainGame(ctx: Ctx, cause: 'card' | 'collapse' | 'attrition' | 'turnLimit'): void {
+  const s = ctx.s;
+  if (s.mainOver) return;
+  s.mainOver = { cause, turn: s.turn };
+  emit(ctx, { type: 'MainGameOver', cause });
+}
+
+/** Reveals a player's exact LP, to everyone or privately to one seat. */
+export function revealLP(ctx: Ctx, seat: Seat, to: Seat | 'all'): void {
+  const s = ctx.s;
+  const p = player(s, seat);
+  const fact = { value: p.lp, turn: s.turn };
+  if (to === 'all') p.lpRevealed = fact;
+  else p.lpShownTo[String(to)] = fact;
+  emit(ctx, { type: 'LPRevealed', seat, value: p.lp, to });
 }

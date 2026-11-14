@@ -1,8 +1,9 @@
 // Upkeep and Phase 1, Crisis Reveal (SPEC §2.2, §2.4, §2.6).
-import { applyModifierTags } from '../cards';
+import { applyModifierTags, getHandler } from '../cards';
 import { stageForTurn, type Stage } from '../config';
 import { getCard } from '../data';
 import { changeEH, changeInfluence, changeLP, emit, setEH } from '../effects';
+import { queueNext, resetScratch } from '../flow';
 import { shuffle } from '../rng';
 import { abilitiesActive, emptyModifiers, living } from '../selectors';
 import type { CardId, Ctx, GameState } from '../types';
@@ -64,7 +65,16 @@ export function startTurn(ctx: Ctx): void {
     p.dialLocked = false;
     p.lpPledge = 0;
     p.abilityUsedThisTurn = false;
+    p.oathUsedThisTurn = false;
+    p.acted = null;
+    p.contributedThisTurn = 0;
   }
+  s.vote = null;
+  s.votesThisTurn = [];
+  s.inoculations = [];
+  s.announced = {};
+  s.tasks = [];
+  resetScratch(ctx);
 
   const stage = stageForTurn(c, s.turn);
   emit(ctx, { type: 'TurnStarted', turn: s.turn, stage, newStage: stage !== prevStage, firstSeat: s.firstSeat });
@@ -80,10 +90,12 @@ export function startTurn(ctx: Ctx): void {
   s.crisis = { cardId, faceDown, pool: 0, mitigated: null };
   emit(ctx, { type: 'CardRevealed', cardId, deck: 'crisis', faceDown });
   applyModifierTags(s.modifiers, card);
-  if (card.eh.timing === 'reveal') {
+  const handler = getHandler(cardId);
+  if (!handler.customEH && card.eh.timing === 'reveal') {
     if (card.eh.op === 'delta') changeEH(ctx, card.eh.value, cardId);
     else if (card.eh.op === 'set') setEH(ctx, card.eh.value, cardId);
   }
+  if (handler.reveal) queueNext(ctx, { k: 'effect', cardId, hook: 'reveal' });
 }
 
 /** Draws this turn's Apex Mandate or Finale card, if the turn has one and it is not drawn yet. */

@@ -16,6 +16,9 @@ export function checkInvariants(s: GameState): string[] {
   for (const d of s.pending) {
     if (s.players[d.seat]?.eliminated) bad.push(`seat ${d.seat}: a dead player is asked to decide (${d.kind})`);
   }
+  for (const d of s.deals) {
+    for (const seat of [d.proposer, d.partner]) if (!s.players[seat]) bad.push(`deal ${d.id}: unknown seat ${seat}`);
+  }
   if (s.step === 'ended' && !s.outcome) bad.push('ended without an outcome');
   // Every Crisis card is in exactly one place.
   const all = [...s.piles.stage.flat(), ...s.piles.crisisDiscard, ...(s.crisis ? [s.crisis.cardId] : [])];

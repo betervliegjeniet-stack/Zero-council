@@ -87,6 +87,7 @@ describe('crisis deck (SPEC §2.2)', () => {
       const { events } = runGame({ seed });
       let stage = 0;
       for (const e of events) {
+        if (e.type === 'DeckReshuffled') break; // System Reboot mixes old cards into Stage III
         if (e.type === 'TurnStarted') stage = e.stage;
         if (e.type === 'CardRevealed' && e.deck === 'crisis') {
           const card = getCard(e.cardId);

@@ -5,7 +5,7 @@ import { randInt, seedToState, shuffle } from './rng';
 import { emptyModifiers } from './selectors';
 import type { CardId, GameEvent, GameState, PlayerState } from './types';
 
-export const STATE_VERSION = 1;
+export const STATE_VERSION = 2;
 
 export interface GameOptions {
   seed: number;
@@ -53,10 +53,16 @@ export function createGame(options: GameOptions): { state: GameState; events: Ga
       eliminatedTurn: null,
       dial: null,
       dialLocked: false,
+      queuedDial: null,
+      acted: null,
+      contributedThisTurn: 0,
       lpPledge: 0,
       contributedTotal: 0,
       abilityUsedThisTurn: false,
       abilityUsesThisGame: 0,
+      oathUsedThisTurn: false,
+      lpRevealed: null,
+      lpShownTo: {},
       stats: { lpForged: 0, lpDestroyed: 0, dealsMade: 0, dealsBroken: 0, timesBetrayed: 0 },
     };
   });
@@ -96,6 +102,14 @@ export function createGame(options: GameOptions): { state: GameState; events: Ga
     blackoutTurn: 0,
     whisper: null,
     crucible: null,
+    vote: null,
+    votesThisTurn: [],
+    deals: [],
+    inoculations: [],
+    announced: {},
+    skipTurns: 0,
+    tasks: [],
+    scratch: { choices: {}, bids: {}, shield: [] },
     pending: [],
     nextId: 1,
     mainOver: null,

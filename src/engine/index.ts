@@ -5,3 +5,6 @@ export * from './selectors';
 export { createGame, STATE_VERSION, type GameOptions } from './setup';
 export { applyIntent } from './engine';
 export { actionCost, dialOptions, validateDial, type DialOption } from './phases/actions';
+export { HANDLERS, assertRegistryComplete, getHandler } from './cards';
+export { ballotOptions } from './votes';
+export { VENT_COST, VENT_PAYMENT, PARANOIA_COST, MARTIAL_LAW_COST, INOCULATE_COST_LP } from './abilities';

@@ -28,7 +28,7 @@ designer has confirmed the default, **Open** when it is still only my reading.
 | 18 | 7 expansion cards split "evenly" over two piles. | 3 in one pile and 4 in the other; the seed decides which. | — |
 | 19 | `shortText` is required by §9.1 but missing from `cards.json`. | The 71 short texts are written in M4. | — |
 
-## Open (found while building M0–M1)
+## Open (found while building M0–M2)
 
 | # | Question | Default taken | Config flag |
 |---|---|---|---|
@@ -37,3 +37,15 @@ designer has confirmed the default, **Open** when it is still only my reading.
 | 22 | Embargo "+1 on every action with a cost": does it hit Sabotage when Resource War makes it cost 0? | Yes (CR-27 says surcharges still apply). The surcharge goes on Salvage, Sabotage, Contribute, Repair and Medical Tax by kind; Self-Quarantine stays free. | `embargoSurcharge` |
 | 23 | Who is first player after the previous first player is eliminated? | The marker moves to the next living seat clockwise each turn. | — |
 | 24 | Attrition: what if only one player (or none) is left alive before turn 10? | The main game ends at once and goes to the Crucible, which ends immediately. No collapse penalty unless EH is 0. | — |
+| 25 | The design pack never reached the repo; only a 6-page "Zero Hour" art bible (16 prototype cards) did. | Its four plates will be cropped for card art in M4; the other 55 cards get procedural art. Its rules text is an older version, so `cards.json` wins. The radio intro and faction lines will be written fresh in the spec's tone. | — |
+| 26 | Which Crisis penalties can Martial Law ignore? The spec lists examples. | Every personal penalty from a Crisis card (LP or Influence loss, Blight, Exile, Embargo, ability disable, Silence, GatherLocked, Paralysis), including the result of a Crisis-card vote. Not elimination (CR-37, CR-40), not EH, not Mandates or Finale cards, and not a price the player chose to pay (BS-05 sacrifice, BS-06 payment). | — |
+| 27 | Is CR-08's open vote an Urn vote? | No: the Directorate counts once and cannot break ties, Redact Name does not apply, and there is no tie penalty. | — |
+| 28 | Redact Name: which ballots are cancelled? | The heaviest first (the Directorate's double ballot). Cancelled ballots break unanimity in MAN-20. It also works in the Judas Kiss. | — |
+| 29 | Blackout (MAN-10): do the hidden card's effects apply before it flips? | Yes. Reveal effects and locks apply at once; only the card's identity is hidden until Phase 4. | — |
+| 30 | When are deals checked, given vote promises over Mandates? | After the Mandate, at the very end of Phase 4 (the spec says before). A `willVote` term is checked against the first fitting vote of the turn and is void if there was none. | — |
+| 31 | FIN-03: is the Influence spent if the pool of 15 fails? | Yes, spent either way, like a Crisis pool. A faction that is already Exiled is not picked for the purge. | — |
+| 32 | FIN-02: who are "the two lowest bidders" with ties or few players? | Everyone whose bid is at or below the second-lowest bid, except the winner. | — |
+| 33 | MAN-09 with a tie for 2nd place and a Directorate at the table. | The Directorate picks who fills the open slot(s), or lets the tie stand. | — |
+| 34 | CR-11: is a queued action re-checked against next turn's locks? | No. Only cost and target are checked when it resolves; deal promises are judged on the dial chosen. | — |
+| 35 | `revealLP` in a deal: who learns the number? | Only the deal partner (Subpoena and Legacy Audit reveal to everyone). | — |
+| 36 | A fizzled action and promises. | A fizzled Contribute or Sabotage does not keep a promise; a fizzled Sabotage does not break "will not Sabotage". | — |

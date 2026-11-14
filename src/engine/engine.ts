@@ -3,18 +3,24 @@
 import { emit } from './effects';
 import { startTurn } from './phases/crisis';
 import { openCrucibleRound, resolveCrucibleRound, startCrucible, submitBid } from './phases/crucible';
+import { useAbility } from './abilities';
+import { checkDeals, proposeDeal, respondDeal } from './deals';
+import { resetScratch } from './flow';
 import { resolveMandate } from './phases/mandate';
 import {
-  checkDeals, checkMitigation, endTurn, lockDial, openDials, resolveActions, resolveCrisisCard,
-  revealDials, setDial,
+  checkMitigation, endTurn, finishMitigation, lockDial, openDials, paranoiaWindow, pledgeLP, resolveActions,
+  resolveCrisisCard, revealDials, setDial,
 } from './phases/resolve';
+import { chooseOption, runTask, submitInfluenceBid } from './tasks';
+import { castBallot } from './votes';
 import { openWhisper, tryCloseWhisper } from './phases/whisper';
 import { living } from './selectors';
 import type { Ctx, GameEvent, GameState, Intent, Step } from './types';
 import { IllegalIntentError } from './types';
 
 const MAIN_GAME_STEPS: ReadonlySet<Step> = new Set<Step>([
-  'crisisGate', 'whisper', 'dialsOpen', 'dials', 'reveal', 'actions', 'mitigation', 'cardResolve', 'deals', 'mandate',
+  'crisisGate', 'whisper', 'dialsOpen', 'dials', 'paranoia', 'reveal', 'actions', 'mitigation', 'mitigationDone',
+  'cardResolve', 'mandate', 'deals',
 ]);
 
 /**
@@ -31,6 +37,8 @@ function checkMainOver(ctx: Ctx): void {
     emit(ctx, { type: 'MainGameOver', cause });
   }
   s.pending = [];
+  s.tasks = [];
+  resetScratch(ctx);
   s.whisper = null;
   s.step = 'turnEndGate';
 }
@@ -41,17 +49,24 @@ function run(ctx: Ctx): void {
   for (let guard = 0; guard < 10_000; guard++) {
     checkMainOver(ctx);
     if (s.pending.length > 0) return;
+    const task = s.tasks.shift();
+    if (task) {
+      runTask(ctx, task);
+      continue;
+    }
     switch (s.step) {
       case 'turnStart': startTurn(ctx); s.step = 'crisisGate'; break;
       case 'crisisGate': case 'whisper': case 'turnEndGate': case 'ended': return;
       case 'dialsOpen': openDials(ctx); break;
-      case 'dials': s.step = 'reveal'; break;
+      case 'dials': s.step = 'paranoia'; break;
+      case 'paranoia': paranoiaWindow(ctx); break;
       case 'reveal': revealDials(ctx); break;
       case 'actions': resolveActions(ctx); break;
       case 'mitigation': checkMitigation(ctx); break;
+      case 'mitigationDone': finishMitigation(ctx); break;
       case 'cardResolve': resolveCrisisCard(ctx); break;
-      case 'deals': checkDeals(ctx); break;
       case 'mandate': resolveMandate(ctx); break;
+      case 'deals': checkDeals(ctx); s.step = 'turnEndGate'; break;
       case 'turnEnd': endTurn(ctx); break;
       case 'crucibleStart': startCrucible(ctx); break;
       case 'crucibleOpen': openCrucibleRound(ctx); break;
@@ -78,7 +93,15 @@ export function applyIntent(state: GameState, intent: Intent): { state: GameStat
     }
     case 'SetDial': setDial(ctx, intent.seat, intent.dial); break;
     case 'LockDial': lockDial(ctx, intent.seat); break;
-    case 'SubmitBid': submitBid(ctx, intent.seat, intent.amount); break;
+    case 'SubmitBid':
+      if (!submitInfluenceBid(ctx, intent.seat, intent.amount)) submitBid(ctx, intent.seat, intent.amount);
+      break;
+    case 'PledgeLP': pledgeLP(ctx, intent.seat, intent.amount); break;
+    case 'CastBallot': castBallot(ctx, intent.seat, intent.choice); break;
+    case 'ChooseOption': chooseOption(ctx, intent.seat, intent.decisionId, intent.option); break;
+    case 'ProposeDeal': proposeDeal(ctx, intent.seat, intent.partner, intent.terms); break;
+    case 'RespondDeal': respondDeal(ctx, intent.seat, intent.dealId, intent.accept); break;
+    case 'UseAbility': useAbility(ctx, intent.seat, intent.ability, intent.target, intent.dealId); break;
   }
   run(ctx);
   return { state: s, events: ctx.ev };

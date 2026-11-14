@@ -120,7 +120,7 @@ describe('ties (SPEC §2.7)', () => {
 
 describe('Whisper phase', () => {
   it('runs on the wall clock passed in by Advance and can be sealed early', () => {
-    let s = send(game(NO_EFFECT), { type: 'Advance' }).state;
+    let s = send(game('CR-03'), { type: 'Advance' }).state;
     s = send(s, { type: 'Advance', now: 1_000 }).state;
     expect(s.step).toBe('whisper');
     expect(s.whisper).toEqual({ startedAt: 1_000, endsAt: 46_000 });
@@ -131,6 +131,7 @@ describe('Whisper phase', () => {
   it('is skipped by Dead Frequency', () => {
     const r = send(game('CR-36'), { type: 'Advance' }, { type: 'Advance' });
     expect(r.state.step).toBe('dials');
+    expect(r.state.whisper).toBeNull();
     expect(r.events).toContainEqual({ type: 'WhisperSkipped' });
   });
 });

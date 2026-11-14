@@ -110,6 +110,17 @@ export function emptyModifiers(): TurnModifiers {
     skipWhisper: false,
     poolLeak: 0,
     abilitiesDisabledAll: false,
-    other: [],
+    randomActions: false,
+    delayActions: false,
+    revealSequential: false,
+    announceActions: false,
+    cannibalSalvage: false,
+    sabotageInfects: false,
   };
+}
+
+/** Silenced and NoTrade players cannot send, receive or accept deals. */
+export function canTrade(s: GameState, seat: Seat): boolean {
+  const p = player(s, seat);
+  return !p.eliminated && !isActive(s, p.status.silencedUntil) && !isActive(s, p.status.noTradeUntil);
 }

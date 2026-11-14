@@ -1,5 +1,5 @@
 // The Secret Action Dial (SPEC §2.5): which sectors are open, what they cost, and how they resolve.
-import { addBlight, changeInfluence, changeLP, emit, removeBlight, setFlagStatus } from '../effects';
+import { addBlight, applyTimedStatus, changeInfluence, changeLP, emit, removeBlight, setFlagStatus } from '../effects';
 import {
   abilitiesActive, isActive, isEmbargoed, isInfected, living, lpLeaders, player, poolThreshold,
 } from '../selectors';
@@ -13,7 +13,7 @@ export interface DialOption {
   reason?: string;
   /** Influence cost. For Sabotage: the cheapest target. For Contribute: the cost of putting in 1. */
   cost: number;
-  /** Sabotage: legal targets. */
+  /** Sabotage (and Salvage under Cannibalism): legal targets. */
   targets?: Seat[];
   /** Contribute: allowed amount range. */
   minAmount?: number;
@@ -107,8 +107,12 @@ export function dialOptions(s: GameState, seat: Seat): DialOption[] {
   if (st.paralyzed) {
     add('medicalTax', null);
   } else {
-    const lock = m.salvageBlocked ? 'Salvage is locked this turn' : m.noLPGain ? 'No LP can be gained this turn' : noSabSalv;
-    add('salvage', lock);
+    // CR-33 Cannibalism: Salvage needs a living rival who still has LP.
+    const prey = m.cannibalSalvage ? living(s).filter((r) => r.seat !== seat && r.lp > 0).map((r) => r.seat) : undefined;
+    const lock = m.salvageBlocked ? 'Salvage is locked this turn'
+      : m.noLPGain ? 'No LP can be gained this turn'
+      : noSabSalv ?? (prey && prey.length === 0 ? 'Nobody left to feed on' : null);
+    add('salvage', lock, prey ? { targets: prey } : {});
   }
 
   const targets = sabotageTargets(s, seat);
@@ -145,6 +149,11 @@ export function validateDial(s: GameState, seat: Seat, dial: Dial): void {
   } else if (dial.transferBlight) {
     throw new IllegalIntentError('Blight transfer only goes with Sabotage');
   }
+  if (dial.action === 'salvage' && opt.targets) {
+    if (dial.target === undefined || !opt.targets.includes(dial.target)) {
+      throw new IllegalIntentError('Under Cannibalism, Salvage needs a living rival with LP as target');
+    }
+  }
   if (dial.action === 'contribute') {
     const a = dial.amount;
     if (a === undefined || !Number.isInteger(a) || a < opt.minAmount! || a > opt.maxAmount!) {
@@ -155,17 +164,24 @@ export function validateDial(s: GameState, seat: Seat, dial: Dial): void {
 }
 
 /** Resolves one revealed dial. Costs are paid here; an unaffordable action fizzles. */
-export function resolveAction(ctx: Ctx, seat: Seat, dial: Dial): void {
+export function resolveAction(ctx: Ctx, seat: Seat, dial: Dial, queued = false): void {
   const s = ctx.s;
   const c = s.config;
   const p = player(s, seat);
   if (p.eliminated) return;
-  const fizzle = (reason: string) => emit(ctx, { type: 'ActionFizzled', seat, dial, reason });
+  // `acted` records this turn's own dial; a dial queued by Mass Paranoia does not overwrite it.
+  if (!queued) p.acted = { dial, fizzled: false };
+  const fizzle = (reason: string) => {
+    if (!queued) p.acted = { dial, fizzled: true };
+    emit(ctx, { type: 'ActionFizzled', seat, dial, reason });
+  };
 
   if (dial.action === 'idle') {
     emit(ctx, { type: 'ActionResolved', seat, dial, cost: 0 });
     return;
   }
+  const cannibal = dial.action === 'salvage' && s.modifiers.cannibalSalvage;
+  if (cannibal && (dial.target === undefined || player(s, dial.target).eliminated)) return fizzle('The target is gone');
   if (dial.action === 'sabotage' && (dial.target === undefined || player(s, dial.target).eliminated)) {
     return fizzle('The target is gone');
   }
@@ -183,6 +199,7 @@ export function resolveAction(ctx: Ctx, seat: Seat, dial: Dial): void {
     }
     case 'salvage':
       changeLP(ctx, seat, c.salvageGain, 'salvage');
+      if (cannibal) changeLP(ctx, dial.target!, -2, 'cannibalism');
       break;
     case 'sabotage': {
       const damage = s.modifiers.sabotageDamageSet ?? c.sabotageDamage + s.modifiers.sabotageDamageBonus;
@@ -192,6 +209,11 @@ export function resolveAction(ctx: Ctx, seat: Seat, dial: Dial): void {
         removeBlight(ctx, seat, 1, 'blightTransfer');
         addBlight(ctx, dial.target!, kind, 1, 'blightTransfer');
       }
+      if (s.modifiers.sabotageInfects) {
+        // BS-03 Cancer of the Soul: the saboteur is Infected and cannot Gather next turn.
+        addBlight(ctx, seat, 'bio', 1, 'BS-03');
+        applyTimedStatus(ctx, seat, 'noGatherUntil', s.turn + 1);
+      }
       break;
     }
     case 'contribute': {
@@ -199,6 +221,7 @@ export function resolveAction(ctx: Ctx, seat: Seat, dial: Dial): void {
       const from = s.crisis?.pool ?? 0;
       if (s.crisis) s.crisis.pool = from + amount;
       p.contributedTotal += amount;
+      p.contributedThisTurn += amount;
       emit(ctx, { type: 'PoolChanged', from, to: from + amount, threshold: poolThreshold(s) });
       if (s.modifiers.contributeRewardLP > 0) changeLP(ctx, seat, s.modifiers.contributeRewardLP, 'contributeReward');
       // Scrubber Guild passive: +1 Influence per rival who Contributes.

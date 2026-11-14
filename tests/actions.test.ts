@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { IllegalIntentError, actionCost, dialOptions, type GameState } from '../src/engine';
-import { NO_EFFECT, newGame, playTurn, send, stackCrisis, toDials } from './helpers';
+import { NO_EFFECT, newGame, play, playTurn, send, stackCrisis, toDials } from './helpers';
 
 const PLAIN = ['choir', 'choir', 'choir', 'choir', 'choir', 'choir'] as const;
 
@@ -184,7 +184,7 @@ describe('paying and fizzling', () => {
       state = send(state, { type: 'SetDial', seat, dial: { action: 'gather' } }, { type: 'LockDial', seat }).state;
     }
     state.players[0]!.influence = 1; // lost Influence after locking in
-    const r = send(state, { type: 'SetDial', seat: 5, dial: { action: 'gather' } }, { type: 'LockDial', seat: 5 });
+    const r = play(send(state, { type: 'SetDial', seat: 5, dial: { action: 'gather' } }, { type: 'LockDial', seat: 5 }).state);
     expect(r.events.find((e) => e.type === 'ActionFizzled')).toMatchObject({ seat: 0, reason: 'Cannot pay' });
     expect([r.state.players[0]!.influence, r.state.players[0]!.lp]).toEqual([1, 3]);
   });

@@ -1,51 +1,41 @@
-// Card registry. Generic behaviour (reveal EH, `mod:*` tags, Influence pools) is driven by the
-// JSON fields in phases/crisis.ts and phases/resolve.ts; handlers implement only the special parts.
-// M1 ships the generic layer; the per-card handlers and the completeness assertion arrive in M2.
-import type { Card } from '../data';
-import type { Ctx, TurnModifiers } from '../types';
+// Card registry: every one of the 71 card ids maps to a handler (SPEC §6).
+import { CARDS } from '../data';
+import { CRISIS_HANDLERS } from './crisis';
+import { FINALE_HANDLERS } from './finale';
+import { MANDATE_HANDLERS } from './mandates';
+import { SCHISM_HANDLERS } from './schism';
+import type { CardHandler } from './types';
 
-export interface CardHandler {
-  onReveal?(ctx: Ctx): void;
-  /** `mitigated` is null for cards that have no mitigation. */
-  onResolve?(ctx: Ctx, mitigated: boolean | null): void;
-}
+export type { CardHandler } from './types';
+export { applyModifierTags } from './modifiers';
 
-export const HANDLERS: Record<string, CardHandler> = {};
+export const HANDLERS: Readonly<Record<string, CardHandler>> = {
+  ...CRISIS_HANDLERS,
+  ...SCHISM_HANDLERS,
+  ...FINALE_HANDLERS,
+  ...MANDATE_HANDLERS,
+};
 
-/** Cards whose whole digitalRuling is covered by the generic layer. */
-export const GENERIC_ONLY: ReadonlySet<string> = new Set([
-  'CR-03', 'CR-04', 'CR-06', 'CR-07', 'CR-10', 'CR-12', 'CR-14', 'CR-18', 'CR-21',
-  'CR-24', 'CR-27', 'CR-29', 'CR-32', 'CR-36', 'CR-38',
-]);
-
-export function isImplemented(card: Card): boolean {
-  return GENERIC_ONLY.has(card.id) || card.id in HANDLERS;
-}
-
-/** Registers the turn modifiers of a card from its `mod:*` tags. */
-export function applyModifierTags(mods: TurnModifiers, card: Card): void {
-  for (const tag of card.tags) {
-    if (!tag.startsWith('mod:')) continue;
-    const m = /^mod:([A-Za-z]+)(?:([=+])(\d+))?$/.exec(tag);
-    const name = m?.[1];
-    const op = m?.[2];
-    const n = m?.[3] === undefined ? null : Number(m[3]);
-    switch (name) {
-      case 'salvageBlocked': mods.salvageBlocked = true; break;
-      case 'gatherBlocked': mods.gatherBlocked = true; break;
-      case 'gatherYield': mods.gatherYield = n; break;
-      case 'sabotageCost': mods.sabotageCost = n; break;
-      case 'sabotageDamage':
-        if (op === '+') mods.sabotageDamageBonus += n ?? 0;
-        else mods.sabotageDamageSet = n;
-        break;
-      case 'contributeSurcharge': mods.contributeSurcharge = n ?? 0; break;
-      case 'contributeRewardLP': mods.contributeRewardLP = n ?? 0; break;
-      case 'noLPGain': mods.noLPGain = true; break;
-      case 'skipWhisper': mods.skipWhisper = true; break;
-      case 'poolLeak': mods.poolLeak = n ?? 0; break;
-      case 'abilitiesDisabledAll': mods.abilitiesDisabledAll = true; break;
-      default: mods.other.push(tag);
-    }
+/** Throws if a card in cards.json has no handler, or a handler has no card. */
+export function assertRegistryComplete(): void {
+  const ids = new Set(CARDS.map((c) => c.id));
+  const missing = [...ids].filter((id) => !(id in HANDLERS));
+  const unknown = Object.keys(HANDLERS).filter((id) => !ids.has(id));
+  if (missing.length || unknown.length) {
+    throw new Error(`Card registry mismatch. Missing handlers: [${missing.join(', ')}]. Unknown ids: [${unknown.join(', ')}]`);
   }
+  for (const c of CARDS) {
+    const h = HANDLERS[c.id]!;
+    const wantsVote = c.tags.some((t) => t.startsWith('vote:'));
+    if (wantsVote !== (h.vote !== undefined)) throw new Error(`${c.id}: vote tag and handler disagree`);
+  }
+}
+
+// Startup assertion.
+assertRegistryComplete();
+
+export function getHandler(cardId: string): CardHandler {
+  const h = HANDLERS[cardId];
+  if (!h) throw new Error(`No handler for card ${cardId}`);
+  return h;
 }

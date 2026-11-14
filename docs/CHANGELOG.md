@@ -25,3 +25,20 @@
 - 76 tests, including 550 random games across 4, 5 and 6 players.
 
 Not in M1 (by plan): card handlers, Urn votes, active abilities, deals (M2); AI Councilors (M3).
+
+## M2 — Cards, votes, abilities, deals
+- A handler for every one of the 71 cards, each following its `digitalRuling` (`src/engine/cards/`).
+  A startup assertion fails if a card id has no handler or a vote tag has no vote.
+- The Black Urn (`votes.ts`): target, two-target, Aye/Nay, Mercy, Judas, unanimous and open votes; no
+  self-votes; the Directorate's double ballot and tie-break (with "let it burn"); tie penalties.
+- All six faction actives: Redact Name, Vent the Sector, Whispered Paranoia (plus Binding Oath),
+  Martial Law, Inoculate and Subpoena. Martial Law is offered as a 5-second prompt before a personal
+  Crisis penalty lands; the engine dry-runs the effect on a copy to see who would be hit.
+- Deals (`deals.ts`): the seven term kinds, immediate terms on accept, pace limits, promise checking
+  at the end of Phase 4, BETRAYED records, Binding Oath penalty, Self-Quarantine voiding.
+- New turn mechanics: random dials, sequential reveal, queued actions, announced actions with liar
+  exposure, LP pledges, volunteer prompts, Cannibalism targets, face-down Crisis, Overdrive, Reboot.
+- A resumable task queue lets any card stop for votes, choices and bids, and continue afterwards.
+- Tests: 190 in total. One or more per card id (with a check that no id is missed), the Urn rules,
+  every ability, the deal rules, and 550 random games with zero errors or invariant violations.
+- `design-pack/` now holds the "Zero Hour" art bible PDF and its four card plates (for M4 art).
