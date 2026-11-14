@@ -5,7 +5,7 @@ import { getCard } from '../data';
 import { changeEH, changeLP, emit, endMainGame } from '../effects';
 import { ask, queueNext, resetScratch } from '../flow';
 import { pick, randInt } from '../rng';
-import { living, player, turnOrder } from '../selectors';
+import { effectiveThreshold, living, player, turnOrder } from '../selectors';
 import type { Ctx, Dial, GameState, Seat } from '../types';
 import { IllegalIntentError } from '../types';
 import { actionCost, dialOptions, resolveAction, validateDial } from './actions';
@@ -151,7 +151,7 @@ export function checkMitigation(ctx: Ctx): void {
   switch (card.mitigation.kind) {
     case 'pool_influence':
       s.crisis.pool = Math.max(0, s.crisis.pool - s.modifiers.poolLeak);
-      s.crisis.mitigated = s.crisis.pool >= card.mitigation.amount;
+      s.crisis.mitigated = s.crisis.pool >= effectiveThreshold(s, card);
       break;
     case 'pool_lp': {
       // CR-26: pledges are destroyed on success and refunded on failure (by default).
@@ -181,7 +181,7 @@ export function finishMitigation(ctx: Ctx): void {
   const card = getCard(s.crisis.cardId);
   const handler = getHandler(card.id);
   const success = s.crisis.mitigated;
-  emit(ctx, { type: 'MitigationResult', cardId: card.id, success, pool: s.crisis.pool, threshold: card.mitigation.amount });
+  emit(ctx, { type: 'MitigationResult', cardId: card.id, success, pool: s.crisis.pool, threshold: effectiveThreshold(s, card) });
   if (success) return;
   const skipEH = handler.customEH || handler.skipFailEH?.(s);
   if (!skipEH && card.eh.timing === 'unmitigated' && card.eh.op === 'delta') changeEH(ctx, card.eh.value, card.id);

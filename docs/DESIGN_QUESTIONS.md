@@ -66,3 +66,35 @@ Reproduce with `npm run sim -- --games 1000`.
 | B7 | **Fewer players means harder pools.** | Pools mitigated: 6 players 59%, 5 players 47%, 4 players 38% | Scale thresholds with player count. |
 | B8 | **Public Execution (MAN-07) rarely reaches 4 votes** (DQ-15). | 28% with 6 players, 19% with 5, 14% with 4 | `publicExecutionVotes`, or scale it with player count. |
 | B9 | AIs seal about one deal in six that is offered; two thirds of sealed deals are kept. | 27.8 offers per game, 17.5% sealed; kept 66%, broken 28% | AI weights only (`offerChance`, `dealHonor`). |
+
+## Balance pass (approved by the designer: "balance everything to your best ideas")
+
+Every change is a value in `DEFAULT_CONFIG` (`src/engine/config.ts`); `data/factions.json` and `data/cards.json`
+are untouched. The comment above the block in `config.ts` lists the tabletop values to restore.
+
+| Finding | Change | Config value |
+|---|---|---|
+| B1 Two factions under 8%, Archivists on top | Starting pools: Archivists 4/3 (was 4/4), Quiet Choir 5/4 (was 5/3), Iron Remnant 6/3 (was 5/3), Directorate 6/3 (was 6/2) | `factionStart` |
+| B2 Total Extinction in 27% of games | When a Crucible tie would delete everyone who is left, the tied Councilor who contributed the most Influence to pools this game is spared. Still tied: everyone goes. This also gives a personal reason to Contribute. | `crucibleExtinctionTieBreak: 'contribution'` |
+| B6 CR-14 and FIN-03 almost never met | CR-14 pool 10 (was 12, plus the surcharge); FIN-03 pool 12 (was 15) | `poolThresholdOverrides` |
+| B7 Pools harder with fewer players | Influence pool thresholds scale by players / 6, rounded up | `poolScalesWithPlayers: true` |
+| B8 Public Execution rarely reaches 4 votes | 3 votes with 4 or 5 players, 4 with 6 | `publicExecutionVotesByPlayers` |
+
+Left as they are: B4 (a card ends the main game in 38% of games; FIN-04 is a designed "Game Breaker") and
+B5 (Earth Health rarely reaches 0, so the collapse penalty is a threat more than an event).
+
+Results, AI Councilors on Normal, 1,000 games at 6 players and 600 each at 5 and 4:
+
+| | Before (6p) | After (6p) | After (5p) | After (4p) |
+|---|---|---|---|---|
+| Archivists of Ash | 23.5% | 19.8% | 24.2% | 29.9% |
+| Scrubber Guild | 16.8% | 21.7% | 26.8% | 27.1% |
+| Quiet Choir | 7.1% | 15.8% | 18.9% | 26.4% |
+| Iron Remnant | 10.0% | 11.0% | 16.0% | 22.1% |
+| Blight Wardens | 11.0% | 14.6% | 16.2% | 18.6% |
+| Black Urn Directorate | 4.8% | 10.3% | 11.8% | 16.9% |
+| Total Extinction | 26.8% | 6.8% | 5.2% | 6.2% |
+| Influence pools mitigated | 58.7% | 60.1% | 55.8% | 60.6% |
+
+All six factions are now inside the 8-30% band at every player count (with fewer seats each faction's
+share is naturally higher).

@@ -64,6 +64,21 @@ describe('The Crucible (SPEC §2.10)', () => {
     expect(alive(state)).toEqual([]);
   });
 
+  it('spares the top contributor when a tie would wipe out everyone (balance lever B2)', () => {
+    const s = crucible([4, 4]);
+    s.players[1]!.contributedTotal = 7;
+    s.players[0]!.contributedTotal = 2;
+    expect(bid(s, [4, 4]).state.outcome).toEqual({ kind: 'survivor', seat: 1, mainEndCause: 'turnLimit' });
+    const three = crucible([2, 2, 2]);
+    three.players[2]!.contributedTotal = 1;
+    expect(bid(three, [1, 1, 1]).state.outcome).toEqual({ kind: 'survivor', seat: 2, mainEndCause: 'turnLimit' });
+    // Tabletop rule: everyone goes.
+    const old = crucible([4, 4]);
+    old.config.crucibleExtinctionTieBreak = 'none';
+    old.players[1]!.contributedTotal = 7;
+    expect(bid(old, [4, 4]).state.outcome?.kind).toBe('extinction');
+  });
+
   it('deletes at least one player every round, even when everyone bids 0', () => {
     const { state } = bid(crucible([3, 2, 5]), [0, 0, 0]);
     expect(alive(state)).toEqual([0, 2]);

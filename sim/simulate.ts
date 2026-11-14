@@ -1,7 +1,7 @@
 // Headless balance tool (SPEC §5.7):
 //   npm run sim -- --games 1000 --players 6 --seed 1 [--difficulty easy|normal|merciless] [--policy ai|random]
 //                  [--verbose] [--brief] [--ai '{"weight":value}']
-import { DEFAULT_AI, FACTIONS, getCard, getFaction, type AIConfig, type Difficulty, type GameEvent, type GameState } from '../src/engine';
+import { DEFAULT_AI, FACTIONS, getCard, getFaction, startingPool, type AIConfig, type Difficulty, type GameEvent, type GameState } from '../src/engine';
 import { aiPolicy, randomPolicy, runGame } from './runner';
 
 function arg(name: string, fallback: string): string {
@@ -18,6 +18,8 @@ const verbose = process.argv.includes('--verbose');
 // Try AI weights without editing config.ts: --ai '{"sabotageAggression":0.4}'
 const ai: AIConfig = { ...DEFAULT_AI, ...(JSON.parse(arg('ai', '{}')) as Partial<AIConfig>) };
 const brief = process.argv.includes('--brief');
+// Try rule values without editing config.ts: --config '{"poolScalesWithPlayers":true}'
+const configOverride = JSON.parse(arg('config', '{}')) as Record<string, unknown>;
 
 function name(s: GameState, seat: number): string {
   return getFaction(s.players[seat]!.factionId).name.replace(/^The /, '');
@@ -69,7 +71,7 @@ const t0 = Date.now();
 for (let g = 0; g < games; g++) {
   const seed = seed0 + g;
   try {
-    const r = runGame({ seed, playerCount: players, difficulty, config: { ai } }, policy);
+    const r = runGame({ seed, playerCount: players, difficulty, config: { ...configOverride, ai } }, policy);
     violations += r.violations.length;
     if (r.violations.length) console.error(`seed ${seed}:`, r.violations.slice(0, 3));
     for (const p of r.state.players) bump(seated, p.factionId);
@@ -81,7 +83,7 @@ for (let g = 0; g < games; g++) {
     turnsPlayed += r.state.mainOver?.turn ?? r.state.turn;
     for (const d of r.state.deals) bump(deals, d.status);
     // LP per seat, replayed from the event stream, to read the totals at the door of the Crucible.
-    const lp = r.state.players.map((p) => getFaction(p.factionId).start.lp);
+    const lp = r.state.players.map((p) => startingPool(r.state.config, p.factionId).lp);
     let inCrucible = false;
     for (const e of r.events) {
       if (e.type === 'LPChanged') lp[e.seat]! += e.delta;
@@ -103,7 +105,8 @@ for (let g = 0; g < games; g++) {
         if (e.cardId === 'MAN-07') {
           executions++;
           const w = e.result.winners[0];
-          if (!e.result.tie && w !== undefined && (e.result.tally[w] ?? 0) >= 4) executionHits++;
+          const need = r.state.config.publicExecutionVotesByPlayers[String(players)] ?? r.state.config.publicExecutionVotes;
+          if (!e.result.tie && w !== undefined && (e.result.tally[w] ?? 0) >= need) executionHits++;
         }
       }
     }
@@ -153,5 +156,5 @@ const sealed = d('kept') + d('broken') + d('voided') + d('accepted');
 console.log('\nDEALS');
 console.log(`  Offered ${offers} (${(offers / games).toFixed(1)} per game), sealed ${pct(sealed, offers)}; of those kept ${pct(d('kept'), sealed)}, broken ${pct(d('broken'), sealed)}, voided ${pct(d('voided'), sealed)}`);
 console.log('\nVOTES');
-console.log(`  ${votes} votes, ${pct(voteTies, votes)} ended tied, ${tiesBroken} ties broken by the Directorate; Public Execution reached 4 votes in ${pct(executionHits, executions)} of ${executions}`);
+console.log(`  ${votes} votes, ${pct(voteTies, votes)} ended tied, ${tiesBroken} ties broken by the Directorate; Public Execution reached its vote count in ${pct(executionHits, executions)} of ${executions}`);
 if (errors || violations) process.exit(1);

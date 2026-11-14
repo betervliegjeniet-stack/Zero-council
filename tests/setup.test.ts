@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { applyIntent, createGame, getCard, getFaction, leftOf, rightOf, stageForTurn, turnOrder, DEFAULT_CONFIG } from '../src/engine';
+import { applyIntent, createGame, getCard, getFaction, poolThreshold, startingPool, leftOf, rightOf, stageForTurn, turnOrder, DEFAULT_CONFIG } from '../src/engine';
 import { randomPolicy, runGame as run } from '../sim/runner';
 
 const runGame = (options: Parameters<typeof run>[0]) => run(options, randomPolicy);
@@ -18,8 +18,8 @@ describe('setup (SPEC §2.1)', () => {
     expect(state.players[0]).toMatchObject({ factionId: 'wardens', isHuman: true, influence: 4, lp: 3 });
     expect(new Set(state.players.map((p) => p.factionId)).size).toBe(5);
     for (const p of state.players) {
-      const f = getFaction(p.factionId);
-      expect([p.influence, p.lp]).toEqual([f.start.influence, f.start.lp]);
+      const start = startingPool(state.config, p.factionId);
+      expect([p.influence, p.lp]).toEqual([start.influence, start.lp]);
     }
     expect(state.players.slice(1).every((p) => !p.isHuman)).toBe(true);
   });
@@ -53,6 +53,27 @@ describe('setup (SPEC §2.1)', () => {
     const frozen = JSON.stringify(s);
     applyIntent(s, { type: 'Advance' });
     expect(JSON.stringify(s)).toBe(frozen);
+  });
+});
+
+describe('balance levers', () => {
+  it('uses the tuned starting pools by default and the factions.json pools when the override is cleared', () => {
+    const tuned = createGame({ seed: 1, humanFaction: 'directorate' }).state.players[0]!;
+    expect([tuned.influence, tuned.lp]).toEqual([6, 3]);
+    const tabletop = createGame({ seed: 1, humanFaction: 'directorate', config: { factionStart: {} } }).state.players[0]!;
+    expect([tabletop.influence, tabletop.lp]).toEqual([getFaction('directorate').start.influence, getFaction('directorate').start.lp]);
+  });
+
+  it('scales pool thresholds with the number of players and applies per-card overrides', () => {
+    const at = (playerCount: 4 | 5 | 6, card: string, config = {}) => {
+      const s = newGame({ playerCount, config });
+      stackCrisis(s, card);
+      return poolThreshold(send(s, { type: 'Advance' }).state);
+    };
+    expect([at(6, 'CR-18'), at(5, 'CR-18'), at(4, 'CR-18')]).toEqual([15, 13, 10]);
+    expect([at(6, 'CR-14'), at(4, 'CR-14')]).toEqual([10, 7]);
+    expect(at(4, 'CR-18', { poolScalesWithPlayers: false })).toBe(15);
+    expect(at(6, 'CR-14', { poolThresholdOverrides: {} })).toBe(12);
   });
 });
 

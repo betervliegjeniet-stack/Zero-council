@@ -2,7 +2,8 @@
 import { changeEH, changeInfluence, changeLP, emit, setEH } from '../effects';
 import { ask, queueNext } from '../flow';
 import { pick } from '../rng';
-import { living, player } from '../selectors';
+import { effectiveThreshold, living, player } from '../selectors';
+import { getCard } from '../data';
 import type { Ctx } from '../types';
 import { exileNow, seatOf, totalCrucible } from './shared';
 import type { CardHandler } from './types';
@@ -91,8 +92,9 @@ export const FINALE_HANDLERS: Record<string, CardHandler> = {
         player(s, b.seat).contributedTotal += b.amount;
         total += b.amount;
       }
-      const success = total >= 15;
-      emit(ctx, { type: 'MitigationResult', cardId: 'FIN-03', success, pool: total, threshold: 15 });
+      const need = effectiveThreshold(s, getCard('FIN-03'));
+      const success = total >= need;
+      emit(ctx, { type: 'MitigationResult', cardId: 'FIN-03', success, pool: total, threshold: need });
       if (success) return;
       const candidates = living(s).filter((p) => !p.status.exiled);
       if (candidates.length) exileNow(ctx, pick(s, candidates).seat);

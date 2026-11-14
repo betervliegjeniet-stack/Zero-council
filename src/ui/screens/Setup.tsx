@@ -1,6 +1,6 @@
 // Council Setup (SPEC §7.1 screen 2).
 import { useEffect, useRef } from 'react';
-import { FACTIONS, type FactionId } from '../../engine';
+import { DEFAULT_CONFIG, FACTIONS, startingPool, type FactionId } from '../../engine';
 import { Segmented, Toggle } from '../common';
 import { Cog, Sigil, Skull } from '../icons';
 import { useGameStore } from '../../store/gameStore';
@@ -35,7 +35,7 @@ export function SetupScreen() {
               className={s.setup.faction === f.id ? 'faction-card on' : 'faction-card'} style={{ '--accent': f.palette.accent } as React.CSSProperties}
               onClick={() => s.setSetup({ faction: f.id })}>
               <span className="fc-head"><Sigil faction={f.id} size={40} /><b>{f.name}</b></span>
-              <span className="fc-pool"><span><Cog size={14} /> {f.start.influence} Influence</span><span><Skull size={14} /> {f.start.lp} LP</span></span>
+              <span className="fc-pool"><span><Cog size={14} /> {startingPool(DEFAULT_CONFIG, f.id).influence} Influence</span><span><Skull size={14} /> {startingPool(DEFAULT_CONFIG, f.id).lp} LP</span></span>
               <span className="fc-ability"><i>Passive</i> {f.passive.name}: {f.passive.text}</span>
               <span className="fc-ability"><i>Active</i> {f.active.name}: {f.active.text}</span>
               <span className="fc-tip">{TIP[f.id]}</span>

@@ -71,7 +71,8 @@ export const MANDATE_HANDLERS: Record<string, CardHandler> = {
     voteResult: (ctx, r) => {
       const s = ctx.s;
       const t = target(r);
-      if (t === null || (r.tally[String(t)] ?? 0) < s.config.publicExecutionVotes) return;
+      const needed = s.config.publicExecutionVotesByPlayers[String(s.players.length)] ?? s.config.publicExecutionVotes;
+      if (t === null || (r.tally[String(t)] ?? 0) < needed) return;
       changeLP(ctx, t, -Math.ceil(player(s, t).lp / 2), 'MAN-07');
     },
   },

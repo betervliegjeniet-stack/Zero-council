@@ -1,5 +1,6 @@
 // Bids and pledges (SPEC §5.6): the Crucible, the Finale Influence bids, and the LP Pledge.
-import { living, player } from '../selectors';
+import { effectiveThreshold, living, player } from '../selectors';
+import { getCard } from '../data';
 import type { GameState, PendingDecision } from '../types';
 import { believedLP } from './beliefs';
 import { aiRng, clamp } from './personality';
@@ -34,7 +35,7 @@ export function chooseBid(s: GameState, d: PendingDecision): number {
     case 'finalePool': {
       // FIN-03: a fair share of 15, if this Councilor still has abilities worth protecting.
       if (p.status.exiled || per.cooperation < 0.3) return clamp(noise, 0, max);
-      return clamp(Math.ceil(15 / Math.max(1, n - 1.5)) + (per.cooperation > 0.6 ? 1 : 0) + noise, 0, max);
+      return clamp(Math.ceil(effectiveThreshold(s, getCard('FIN-03')) / Math.max(1, n - 1.5)) + (per.cooperation > 0.6 ? 1 : 0) + noise, 0, max);
     }
     default:
       return 0;

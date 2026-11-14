@@ -21,7 +21,7 @@ export function createAIState(rng: RngHolder, s: Pick<GameState, 'players' | 'co
     trust: Array(n).fill(0),
     hostility: Array(n).fill(0.1),
     // Starting pools are printed on the faction mats, so they are public.
-    lpEstimate: s.players.map((p) => getFaction(p.factionId).start.lp),
+    lpEstimate: s.players.map((p) => (s.config.factionStart[p.factionId] ?? getFaction(p.factionId).start).lp),
     recentHarm: Array(n).fill(0),
   };
 }

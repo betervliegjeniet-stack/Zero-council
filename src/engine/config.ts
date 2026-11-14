@@ -132,6 +132,21 @@ export interface RulesConfig {
   harshMode: boolean; // CR-16 variant
   // §7.2
   tutorialCardId: string; // DQ-9
+  // Balance levers (docs/DESIGN_QUESTIONS.md, findings B1-B8). Each one can be switched back.
+  /** Starting pools that replace the ones in factions.json, per faction id. */
+  factionStart: Record<string, { influence: number; lp: number }>;
+  /** Pool thresholds that replace the ones in cards.json, per card id (before player scaling). */
+  poolThresholdOverrides: Record<string, number>;
+  /** Scale Influence pool thresholds by players / 6, rounded up (thresholds are written for 6). */
+  poolScalesWithPlayers: boolean;
+  /** MAN-07: votes needed, by player count. Falls back to publicExecutionVotes. */
+  publicExecutionVotesByPlayers: Record<string, number>;
+  /**
+   * When a Crucible tie would delete everyone who is left: 'contribution' spares the tied player
+   * who put the most Influence into pools this game (still tied: all are deleted). 'none' = the
+   * tabletop rule, everyone goes.
+   */
+  crucibleExtinctionTieBreak: 'contribution' | 'none';
   // §5
   ai: AIConfig;
 }
@@ -173,6 +188,19 @@ export const DEFAULT_CONFIG: RulesConfig = {
   lpPledgeRefundOnFail: true,
   harshMode: false,
   tutorialCardId: 'CR-05',
+  // Balance pass of 2026-11 (sim data in docs/DESIGN_QUESTIONS.md). To return to the tabletop values:
+  // factionStart {}, poolThresholdOverrides {}, poolScalesWithPlayers false,
+  // publicExecutionVotesByPlayers {}, crucibleExtinctionTieBreak 'none'.
+  factionStart: {
+    archivists: { influence: 4, lp: 3 }, // was 4 / 4: cheap Salvage already makes them the LP leader
+    choir: { influence: 5, lp: 4 }, // was 5 / 3
+    iron: { influence: 6, lp: 3 }, // was 5 / 3
+    directorate: { influence: 6, lp: 3 }, // was 6 / 2: its abilities never earn LP
+  },
+  poolThresholdOverrides: { 'CR-14': 10, 'FIN-03': 12 }, // were 12 (+ surcharge) and 15: almost never met
+  poolScalesWithPlayers: true,
+  publicExecutionVotesByPlayers: { '4': 3, '5': 3, '6': 4 },
+  crucibleExtinctionTieBreak: 'contribution',
   ai: DEFAULT_AI,
 };
 

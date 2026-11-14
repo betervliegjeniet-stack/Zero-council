@@ -89,3 +89,12 @@ Not in M1 (by plan): card handlers, Urn votes, active abilities, deals (M2); AI 
 Deferred to later milestones by plan: the event playback queue and animations (M5; for now a
 "Resolution" report lists what happened each turn), sound and haptics (M6), tutorial and radio intro (M7).
 Dragging the dial with the finger is M5; in M4 a sector is chosen by tapping it.
+
+## Balance pass
+- Five levers added to `RulesConfig` and switched on by default: tuned starting pools (`factionStart`),
+  a contribution tie-break against Total Extinction, per-card pool overrides (CR-14, FIN-03), pool
+  thresholds that scale with player count, and Public Execution votes by player count.
+- After: every faction's Last Survivor rate is between 10% and 22% with six players (was 5% to 24%),
+  Total Extinction fell from 27% to 7%, and pools are mitigated 56-61% of the time at 4, 5 and 6 players.
+- `npm run sim` accepts `--config '{...}'` to try rule values without editing `config.ts`.
+- Card tests are pinned to the printed thresholds; 216 tests pass.

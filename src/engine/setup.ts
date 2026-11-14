@@ -8,6 +8,11 @@ import type { CardId, Difficulty, GameEvent, GameState, PlayerState } from './ty
 
 export const STATE_VERSION = 3;
 
+/** A faction's starting Influence and LP: factions.json, unless config.factionStart overrides it. */
+export function startingPool(config: RulesConfig, factionId: FactionId): { influence: number; lp: number } {
+  return config.factionStart[factionId] ?? getFaction(factionId).start;
+}
+
 export interface GameOptions {
   seed: number;
   playerCount?: 4 | 5 | 6;
@@ -31,13 +36,13 @@ export function createGame(options: GameOptions): { state: GameState; events: Ga
   const factionIds: FactionId[] = human ? [human, ...rest.slice(0, playerCount - 1)] : rest.slice(0, playerCount);
 
   const players: PlayerState[] = factionIds.map((factionId, seat) => {
-    const f = getFaction(factionId);
+    const start = startingPool(config, factionId);
     return {
       seat,
       factionId,
       isHuman: human !== null && seat === 0,
-      influence: f.start.influence,
-      lp: f.start.lp,
+      influence: start.influence,
+      lp: start.lp,
       blight: { bio: 0, neuro: 0 },
       status: {
         embargoedUntil: 0,

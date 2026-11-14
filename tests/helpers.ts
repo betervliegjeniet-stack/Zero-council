@@ -14,7 +14,8 @@ export function newGame(opts: Partial<GameOptions> & { factions?: FactionId[] } 
 
 /** Six seats of the same quiet faction, everyone at 5 Influence and 3 LP. */
 export function plainGame(opts: Partial<GameOptions> & { factions?: FactionId[] } = {}): GameState {
-  const s = newGame({ factions: Array(opts.playerCount ?? 6).fill('choir'), ...opts });
+  // Card tests check the printed rulings, so the balance overrides of thresholds are switched off.
+  const s = newGame({ factions: Array(opts.playerCount ?? 6).fill('choir'), ...opts, config: { poolThresholdOverrides: {}, ...opts.config } });
   for (const p of s.players) {
     p.influence = 5;
     p.lp = 3;

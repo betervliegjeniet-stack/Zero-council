@@ -1,6 +1,6 @@
 // Codex (SPEC §7.1 screen 10): all 71 cards, the rules, the factions.
 import { useMemo, useState } from 'react';
-import { CARDS, FACTIONS, type Card } from '../../engine';
+import { CARDS, DEFAULT_CONFIG, FACTIONS, startingPool, type Card } from '../../engine';
 import { CardView } from '../CardView';
 import { CardZoom } from '../game/Board';
 import { Cog, Sigil, Skull } from '../icons';
@@ -24,12 +24,12 @@ const RULES: [string, string][] = [
   ['Earth Health (EH)', 'The bunker starts at 20 (18 with four Councilors). Crises lower it, mostly when the Council fails to mitigate them. If it hits 0 the main game ends and everyone loses half their LP; the lowest contributors lose 1 more.'],
   ['Influence and Legacy (LP)', 'Influence is public and pays for actions. Legacy Points are hidden: rivals show "?" until a card or ability reveals them. Only LP counts in the Crucible.'],
   ['Actions', 'Gather: +2 Influence. Salvage: 3 Influence for +1 LP. Sabotage: 2 Influence, a rival loses 1 LP. Contribute: put X Influence into the Global Pool. Self-Quarantine: remove 1 Blight Cube (voids your promises this turn). You pay when the action resolves; if you cannot, it fizzles.'],
-  ['The Global Pool', 'Pool crises need a total of Influence from the whole Council. Reach the threshold and nothing happens; fall short and the penalty lands. Influence beyond the threshold is lost.'],
+  ['The Global Pool', 'Pool crises need a total of Influence from the whole Council (the number on the meter; it is lower with fewer Councilors). Reach the threshold and nothing happens; fall short and the penalty lands. Influence beyond the threshold is lost.'],
   ['Statuses', 'Infected: lose 1 LP per bio cube (1 Influence per neuro cube) every turn. Embargoed: every action costs 1 more. Exiled: faction abilities are gone for good. Silenced: no deals. Paralyzed: no Salvage until you pay 5. Gather broken: Repair for 3.'],
   ['Deals', 'Deals are promises: Contribute, Sabotage, do not Sabotage, vote, Inoculate. Influence handed over is gone at once. After the turn each promise is checked; a broken one is stamped BETRAYED. Only a Quiet Choir Binding Oath has teeth: the breaker loses 2 LP.'],
   ['The Black Urn', 'Every living Councilor votes, never for themselves. The most votes decides. A tie fails the Mandate and costs Earth Health, unless the Black Urn Directorate breaks it.'],
   ['Ties', 'A penalty or reward for "the player with the most or least" of something hits every tied player.'],
-  ['The Crucible', 'Influence becomes worthless. Each round everyone secretly bids LP. The lowest bidder is deleted; among tied lowest bidders, the one with the fewest LP left goes, and if that is tied too, all of them go. Every bid is destroyed.'],
+  ['The Crucible', 'Influence becomes worthless. Each round everyone secretly bids LP. The lowest bidder is deleted; among tied lowest bidders, the one with the fewest LP left goes, and if that is tied too, all of them go. If that would leave nobody, the tied Councilor who contributed the most Influence to pools this game is spared. Every bid is destroyed.'],
 ];
 
 export function CodexScreen() {
@@ -84,7 +84,7 @@ export function CodexScreen() {
             <section key={f.id} className="faction-entry" style={{ '--accent': f.palette.accent } as React.CSSProperties}>
               <h2><Sigil faction={f.id} size={28} /> {f.name}</h2>
               <p className="serif">{f.role}</p>
-              <p><Cog size={14} /> {f.start.influence} Influence · <Skull size={14} /> {f.start.lp} LP</p>
+              <p><Cog size={14} /> {startingPool(DEFAULT_CONFIG, f.id).influence} Influence · <Skull size={14} /> {startingPool(DEFAULT_CONFIG, f.id).lp} LP</p>
               <p><b>{f.passive.name}.</b> {f.passive.text}</p>
               <p><b>{f.active.name}.</b> {f.active.text}</p>
             </section>

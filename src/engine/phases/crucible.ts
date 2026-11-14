@@ -80,7 +80,14 @@ export function resolveCrucibleRound(ctx: Ctx): void {
   const tied = bids.filter((b) => b.amount === lowestBid);
   const remaining = (b: { seat: Seat; amount: number }) => player(s, b.seat).lp - b.amount;
   const fewestLeft = Math.min(...tied.map(remaining));
-  const deleted = tied.filter((b) => remaining(b) === fewestLeft).map((b) => b.seat);
+  let deleted = tied.filter((b) => remaining(b) === fewestLeft).map((b) => b.seat);
+  // Balance lever B2: if the tie would wipe out everyone who is left, the Councilor who did the
+  // most for the bunker is spared. Still tied on contribution: Total Extinction.
+  if (s.config.crucibleExtinctionTieBreak === 'contribution' && deleted.length === bids.length && deleted.length > 1) {
+    const most = Math.max(...deleted.map((seat) => player(s, seat).contributedTotal));
+    const spared = deleted.filter((seat) => player(s, seat).contributedTotal === most);
+    if (spared.length === 1) deleted = deleted.filter((seat) => seat !== spared[0]);
+  }
 
   for (const b of bids) changeLP(ctx, b.seat, -b.amount, 'crucibleBid');
   for (const seat of deleted) eliminate(ctx, seat, 'crucible');

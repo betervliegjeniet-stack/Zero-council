@@ -93,7 +93,14 @@ export function currentCrisis(s: GameState): Card | null {
 export function poolThreshold(s: GameState): number | null {
   const card = currentCrisis(s);
   if (!card || card.deck !== 'crisis' || card.mitigation.kind !== 'pool_influence') return null;
-  return card.mitigation.amount;
+  return effectiveThreshold(s, card);
+}
+
+/** A card's Influence pool threshold after config overrides and player-count scaling. */
+export function effectiveThreshold(s: GameState, card: Card): number {
+  const base = s.config.poolThresholdOverrides[card.id] ?? card.mitigation.amount;
+  if (card.mitigation.kind !== 'pool_influence' || !s.config.poolScalesWithPlayers) return base;
+  return Math.max(1, Math.ceil((base * s.players.length) / 6));
 }
 
 export function emptyModifiers(): TurnModifiers {
