@@ -2,7 +2,9 @@ import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 
+// Relative base: the build works from any URL (GitHub Pages sub-path, a plain file host, Capacitor).
 export default defineConfig({
+  base: './',
   plugins: [
     react(),
     VitePWA({

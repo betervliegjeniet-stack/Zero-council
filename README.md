@@ -16,6 +16,18 @@ To try the installable app (Add to Home Screen, works offline):
 npm run build && npx vite preview --host
 ```
 
+## Put it on your phone without a computer
+
+The build uses relative paths, so it works from any web host. `.github/workflows/pages.yml` deploys it to
+GitHub Pages: merge this branch into `main`, then in the repository's Settings > Pages choose
+"GitHub Actions" as the source. Open the published link on your phone and use "Add to Home Screen".
+
+## App-store builds (M8)
+
+`capacitor.config.ts` is set up and haptics switch to the native engine inside the app. On a computer with
+Android Studio or Xcode: `npx cap add android` (or `ios`), then `npm run cap:android` / `npm run cap:ios`.
+These builds have not been run in this environment (no Android SDK or Xcode here).
+
 ## Commands
 
 | Command | What it does |

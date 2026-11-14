@@ -140,3 +140,12 @@ Dragging the dial with the finger is M5; in M4 a sector is chosen by tapping it.
   Chromium), audio unlock on iOS Safari specifically, and Lighthouse scores.
 
 M8 (Capacitor wrap for the app stores) is not started, as planned.
+
+## Gap fixes
+- Counter-offers can now swap a term (Contribute 2, not Sabotage, give 1 Influence, Sabotage a rival) as
+  well as change an amount.
+- The build uses a relative base path and relative font and icon paths, so it runs from any host or
+  sub-path (checked under `/zero-council/`). Added a GitHub Pages workflow.
+- M8 groundwork: Capacitor config, `cap:*` scripts, native haptics when running inside the app. Platform
+  projects were not generated and no store build was run here.
+- Still open: 55 cards use vector art (see `docs/ART_PROMPTS.md`).

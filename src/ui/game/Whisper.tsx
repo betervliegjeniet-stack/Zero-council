@@ -79,7 +79,7 @@ export function WhisperSheet({ g, me, onHide }: Props) {
   const [now, setNow] = useState(Date.now());
   const [builder, setBuilder] = useState(false);
   const [ability, setAbility] = useState<null | 'ventSector' | 'inoculate' | 'subpoena'>(null);
-  const [counter, setCounter] = useState<{ deal: Deal; delta: number } | null>(null);
+  const [counter, setCounter] = useState<{ deal: Deal } | null>(null);
   const endsAt = g.whisper?.endsAt ?? now;
   const total = g.config.whisperSeconds * 1000;
   const left = Math.max(0, endsAt - now);
@@ -161,13 +161,13 @@ export function WhisperSheet({ g, me, onHide }: Props) {
       {incoming.length === 0 ? <p className="dim">No offers yet. The Council murmurs.</p> : (
         <ul className="notes">
           {incoming.map((d) => {
-            const numeric = d.terms.findIndex((t) => t.kind === 'giveInfluenceNow' || t.kind === 'willContribute');
+            const numeric = 0;
             return (
               <Note key={d.id} g={g} deal={d} me={me}>
                 <div className="note-actions">
                   <button type="button" className="btn btn-primary" onClick={() => s.respondDeal(d.id, true)}>Accept</button>
                   <button type="button" className="btn" onClick={() => s.respondDeal(d.id, false)}>Reject</button>
-                  {numeric >= 0 && sent < 3 && <button type="button" className="btn" onClick={() => setCounter({ deal: d, delta: 0 })}>Counter</button>}
+                  {numeric >= 0 && sent < 3 && <button type="button" className="btn" onClick={() => setCounter({ deal: d })}>Counter</button>}
                 </div>
               </Note>
             );
@@ -214,25 +214,7 @@ export function WhisperSheet({ g, me, onHide }: Props) {
           </div>
         </Sheet>
       )}
-      {counter && (() => {
-        const i = counter.deal.terms.findIndex((t) => t.kind === 'giveInfluenceNow' || t.kind === 'willContribute');
-        const t = counter.deal.terms[i]!;
-        const base = t.kind === 'giveInfluenceNow' ? t.amount : t.kind === 'willContribute' ? t.min : 1;
-        const value = Math.max(1, base + counter.delta);
-        const send = () => {
-          const terms = counter.deal.terms.map((x) => (x.kind === 'giveInfluenceNow' ? { ...x, amount: value } : x.kind === 'willContribute' ? { ...x, min: value } : x));
-          s.respondDeal(counter.deal.id, false);
-          s.proposeDeal(counter.deal.proposer, terms);
-          setCounter(null);
-        };
-        return (
-          <Sheet title="Counter-offer" kind="modal" onClose={() => setCounter(null)}>
-            <p>Change the amount and send it back. This uses one of your offers.</p>
-            <Stepper label="Amount" value={value} min={1} max={base + 3} onChange={(v) => setCounter({ deal: counter.deal, delta: v - base })} />
-            <button type="button" className="btn btn-primary wide" onClick={send}>Send counter</button>
-          </Sheet>
-        );
-      })()}
+      {counter && <CounterSheet g={g} me={me} deal={counter.deal} onClose={() => setCounter(null)} />}
     </Sheet>
   );
 }
@@ -297,6 +279,59 @@ function OfferBuilder({ g, me, onClose }: { g: GameState; me: Seat; onClose: () 
       {terms && <ul className="terms preview">{terms.map((t, i) => <li key={i}>{termText(g, t, me)}</li>)}</ul>}
       <button type="button" className="btn btn-primary wide" disabled={!terms || partner === null}
         onClick={() => { const d = proposeDeal(partner!, terms!); if (d) setResult(d); else onClose(); }}>Send the note</button>
+    </Sheet>
+  );
+}
+
+/** Counter-offer (SPEC §4.2): change an amount by one, or swap one term for another. */
+function CounterSheet({ g, me, deal, onClose }: { g: GameState; me: Seat; deal: Deal; onClose: () => void }) {
+  const s = useGameStore();
+  const other = deal.proposer;
+  const [terms, setTerms] = useState<DealTerm[]>(deal.terms);
+  const third = g.players.filter((x) => !x.eliminated && x.seat !== me && x.seat !== other);
+  // Terms that could replace one the partner promised or one of mine.
+  const alternatives = (t: DealTerm): { label: string; term: DealTerm }[] => {
+    const who = t.kind === 'giveInfluenceNow' ? t.from : t.who;
+    const out: { label: string; term: DealTerm }[] = [
+      { label: 'Contribute 2', term: { kind: 'willContribute', who, min: 2 } },
+      { label: 'Not Sabotage ' + (who === me ? 'them' : 'me'), term: { kind: 'willNotSabotage', who, target: who === me ? other : me } },
+      { label: 'Give 1 Influence', term: { kind: 'giveInfluenceNow', from: who, amount: 1 } },
+    ];
+    for (const x of third.slice(0, 2)) out.push({ label: `Sabotage the ${FACTION_SHORT[x.factionId]}`, term: { kind: 'willSabotage', who, target: x.seat } });
+    return out.filter((o) => termText(g, o.term, me) !== termText(g, t, me));
+  };
+  const bump = (i: number, d: number) => setTerms(terms.map((t, k) => k !== i ? t
+    : t.kind === 'giveInfluenceNow' ? { ...t, amount: Math.max(1, t.amount + d) }
+    : t.kind === 'willContribute' ? { ...t, min: Math.max(1, t.min + d) } : t));
+  const swap = (i: number, term: DealTerm) => setTerms(terms.map((t, k) => (k === i ? term : t)));
+  const send = () => {
+    s.respondDeal(deal.id, false);
+    s.proposeDeal(other, terms);
+    onClose();
+  };
+  return (
+    <Sheet title="Counter-offer" kind="modal" onClose={onClose}>
+      <p>Change an amount with + and −, or swap a term. This uses one of your offers.</p>
+      <ul className="counter-terms">
+        {terms.map((t, i) => (
+          <li key={i}>
+            <span>{termText(g, t, me)}</span>
+            <span className="counter-tools">
+              {(t.kind === 'giveInfluenceNow' || t.kind === 'willContribute') && (
+                <>
+                  <button type="button" className="step-btn small" aria-label="Less" onClick={() => bump(i, -1)}>−</button>
+                  <button type="button" className="step-btn small" aria-label="More" onClick={() => bump(i, 1)}>+</button>
+                </>
+              )}
+              <select aria-label="Swap this term" value="" onChange={(e) => { const alt = alternatives(t)[Number(e.target.value)]; if (alt) swap(i, alt.term); }}>
+                <option value="">Swap…</option>
+                {alternatives(t).map((o, k) => <option key={k} value={k}>{o.label}</option>)}
+              </select>
+            </span>
+          </li>
+        ))}
+      </ul>
+      <button type="button" className="btn btn-primary wide" onClick={send}>Send counter</button>
     </Sheet>
   );
 }

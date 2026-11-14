@@ -12,15 +12,33 @@ const PATTERNS: Record<HapticName, number | number[]> = {
 
 let enabled = true;
 
+/** On Capacitor (iOS / Android apps) use the native haptics engine; elsewhere navigator.vibrate. */
+async function native(name: HapticName): Promise<boolean> {
+  const cap = (window as unknown as { Capacitor?: { isNativePlatform?: () => boolean } }).Capacitor;
+  if (!cap?.isNativePlatform?.()) return false;
+  try {
+    const { Haptics, ImpactStyle, NotificationType } = await import('@capacitor/haptics');
+    if (name === 'ehLoss') await Haptics.notification({ type: NotificationType.Warning });
+    else if (name === 'deletion') await Haptics.notification({ type: NotificationType.Error });
+    else await Haptics.impact({ style: name === 'seal' ? ImpactStyle.Heavy : ImpactStyle.Light });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 export function setHaptics(on: boolean): void {
   enabled = on;
 }
 
 export function haptic(name: HapticName): void {
-  if (!enabled || typeof navigator === 'undefined' || typeof navigator.vibrate !== 'function') return;
-  try {
-    navigator.vibrate(PATTERNS[name]);
-  } catch {
-    /* not allowed without a user gesture: ignore */
-  }
+  if (!enabled || typeof navigator === 'undefined') return;
+  void native(name).then((used) => {
+    if (used || typeof navigator.vibrate !== 'function') return;
+    try {
+      navigator.vibrate(PATTERNS[name]);
+    } catch {
+      /* not allowed without a user gesture: ignore */
+    }
+  });
 }
