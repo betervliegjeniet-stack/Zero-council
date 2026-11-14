@@ -31,7 +31,7 @@ function describe(e: GameEvent, s: GameState): string | null {
     case 'MitigationResult': return `  Pool ${e.pool}/${e.threshold}: ${e.success ? 'MITIGATED' : 'FAILED'}`;
     case 'MainGameOver': return `  MAIN GAME OVER (${e.cause})`;
     case 'CollapsePenalty': return '  TOTAL COLLAPSE: everyone bleeds';
-    case 'CrucibleStarted': return `\n== THE CRUCIBLE: ${e.seats.map((x) => `${name(s, x)} (${s.players[x]!.lp} LP)`).join(', ')}`;
+    case 'CrucibleStarted': return `\n== THE CRUCIBLE: ${e.seats.map((x) => name(s, x)).join(', ')}`;
     case 'BidsRevealed': return `  Round ${e.round} bids: ${e.bids.map((b) => `${name(s, b.seat)} ${b.amount}`).join(', ')}`;
     case 'PlayerDeleted': return `  DELETED: ${name(s, e.seat)} (${e.cause})`;
     case 'GameEnded': return e.outcome.kind === 'survivor' ? `\nLAST SURVIVOR: ${name(s, e.outcome.seat)}` : '\nTOTAL EXTINCTION';
