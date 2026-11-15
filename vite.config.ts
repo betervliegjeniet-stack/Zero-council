@@ -3,11 +3,15 @@ import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 
 // Relative base: the build works from any URL (GitHub Pages sub-path, a plain file host, Capacitor).
+// ARTIFACT=1 builds a variant for a hosted preview page, where service workers are not available.
+const artifact = process.env.ARTIFACT === '1';
+
 export default defineConfig({
   base: './',
+  build: artifact ? { outDir: process.env.ARTIFACT_OUT ?? 'dist-artifact', emptyOutDir: true, copyPublicDir: false } : {},
   plugins: [
     react(),
-    VitePWA({
+    !artifact && VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['fonts/*.woff2', 'icons/*.png', 'icons/*.svg'],
       manifest: {

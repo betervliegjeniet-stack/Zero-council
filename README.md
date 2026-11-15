@@ -19,8 +19,10 @@ npm run build && npx vite preview --host
 ## Put it on your phone without a computer
 
 The build uses relative paths, so it works from any web host. `.github/workflows/pages.yml` deploys it to
-GitHub Pages: merge this branch into `main`, then in the repository's Settings > Pages choose
-"GitHub Actions" as the source. Open the published link on your phone and use "Add to Home Screen".
+GitHub Pages on every push to `main` or `claude/new-session-12qorz`. One-time setup: in the repository's
+Settings > Pages, set Source to "GitHub Actions", then re-run the workflow from the Actions tab.
+The game is then at https://betervliegjeniet-stack.github.io/Zero-council/ — open it on your phone and use
+"Add to Home Screen".
 
 ## App-store builds (M8)
 
