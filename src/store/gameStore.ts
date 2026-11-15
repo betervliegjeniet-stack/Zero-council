@@ -403,7 +403,12 @@ export const useGameStore = create<GameStore>((set, get) => {
       const deal = now.deals.at(-1)!;
       const accept = aiAcceptsDeal(now, partner, deal.id);
       setLine(deal.id, partner, accept ? 'accept' : 'reject');
-      if (attempt({ type: 'RespondDeal', seat: partner, dealId: deal.id, accept }) && accept) followUp(deal.id);
+      const answered = attempt({ type: 'RespondDeal', seat: partner, dealId: deal.id, accept });
+      if (!answered) {
+        // The deal could not be sealed (for example a giver no longer has the Influence): withdraw it.
+        attempt({ type: 'RespondDeal', seat: partner, dealId: deal.id, accept: false });
+        set({ error: 'The deal fell through: someone cannot afford it.' });
+      } else if (accept) followUp(deal.id);
       pump();
       return get().game!.deals.find((d) => d.id === deal.id) ?? null;
     },

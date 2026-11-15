@@ -219,6 +219,17 @@ export function WhisperSheet({ g, me, onHide }: Props) {
   );
 }
 
+const TEMPLATE_HELP: Record<Template, string> = {
+  pact: 'Both of you promise to put Influence into the pool.',
+  buyPeace: 'You hand over Influence now; they promise not to Sabotage you.',
+  sellPeace: 'They hand over Influence now; you promise not to Sabotage them.',
+  hit: 'Both of you promise to Sabotage the same rival.',
+  vote: 'Both of you promise to cast the same ballot in this turn\'s vote.',
+  buyLP: 'You pay Influence to see their exact LP.',
+  sellCure: 'They pay Influence now; you Inoculate them (2 LP).',
+  buyCure: 'You pay Influence now; they promise to Inoculate you.',
+};
+
 function OfferBuilder({ g, me, onClose }: { g: GameState; me: Seat; onClose: () => void }) {
   const proposeDeal = useGameStore((s) => s.proposeDeal);
   const p = g.players[me]!;
@@ -233,15 +244,25 @@ function OfferBuilder({ g, me, onClose }: { g: GameState; me: Seat; onClose: () 
   const r = partner !== null ? g.players[partner]! : null;
   const templates: Template[] = ['pact', 'buyPeace', 'sellPeace', 'hit', ...(vk ? ['vote' as const] : []), 'buyLP',
     ...(p.factionId === 'wardens' ? ['sellCure' as const] : []), ...(r?.factionId === 'wardens' ? ['buyCure' as const] : [])];
-  const needsAmount = !['hit', 'vote'].includes(tpl);
+  const active: Template = templates.includes(tpl) ? tpl : 'pact';
+  const needsAmount = !['hit', 'vote'].includes(active);
+  // The amount cannot exceed what the payer has: you for most templates, the partner for the ones they pay.
+  const payer = active === 'sellPeace' || active === 'sellCure' ? r : p;
+  const cap = Math.max(1, Math.min(9, payer?.influence ?? 9));
+  const amount = Math.min(n, cap);
+  const needsContribute = active === 'pact' ? amount : 0;
+  const affordable = active === 'pact' ? p.influence >= amount : active === 'hit' || active === 'vote' ? true : (payer?.influence ?? 0) >= 1;
   const thirdParties = g.players.filter((x) => !x.eliminated && x.seat !== me && x.seat !== partner);
-  const terms = partner !== null ? buildTerms(tpl, me, partner, n, target) : null;
+  const terms = partner !== null ? buildTerms(active, me, partner, amount, target) : null;
+  const why = partner === null ? 'Pick who to whisper to.' : !terms ? (active === 'vote' && vk === 'ayeNay' ? 'Pick Aye or Nay.' : 'Pick a rival.') : !affordable ? 'Not enough Influence.' : '';
 
   if (result) {
+    const title = result.status === 'accepted' ? 'Deal sealed' : result.status === 'rejected' ? 'Refused' : 'No answer';
     return (
-      <Sheet title={result.status === 'accepted' ? 'Deal sealed' : 'Refused'} kind="modal" onClose={onClose}>
+      <Sheet title={title} kind="modal" onClose={onClose}>
         {lineText && <p className="note-line">“{lineText}”</p>}
         <ul className="terms">{result.terms.map((t, i) => <li key={i}>{termText(g, t, me)}</li>)}</ul>
+        {result.status === 'accepted' && <p className="dim">The Influence has changed hands. The promises are judged at the end of the turn.</p>}
         <button type="button" className="btn btn-primary wide" onClick={onClose}>Back to the whispers</button>
       </Sheet>
     );
@@ -249,35 +270,53 @@ function OfferBuilder({ g, me, onClose }: { g: GameState; me: Seat; onClose: () 
   return (
     <Sheet title="Whisper an offer" kind="modal" onClose={onClose}>
       <div className="field">
-        <span className="field-label">To</span>
-        <div className="targets">
+        <span className="field-label">1. Whisper to</span>
+        <div className="targets" role="radiogroup" aria-label="Whisper to">
           {partners.map((x) => (
-            <button key={x.seat} type="button" className={partner === x.seat ? 'target on' : 'target'} aria-pressed={partner === x.seat}
-              onClick={() => { setPartner(x.seat); setTarget(undefined); if (tpl === 'buyCure') setTpl('pact'); }}>{FACTION_SHORT[x.factionId]}</button>
+            <button key={x.seat} type="button" role="radio" aria-checked={partner === x.seat} className={partner === x.seat ? 'target on' : 'target'}
+              onClick={() => { setPartner(x.seat); setTarget(undefined); }}>{FACTION_SHORT[x.factionId]}</button>
           ))}
         </div>
       </div>
       <div className="field">
-        <label className="field-label" htmlFor="tpl">Offer</label>
-        <select id="tpl" value={templates.includes(tpl) ? tpl : 'pact'} onChange={(e) => { setTpl(e.target.value as Template); setTarget(undefined); }}>
-          {templates.map((t) => <option key={t} value={t}>{TEMPLATE_LABEL[t]}</option>)}
-        </select>
+        <span className="field-label">2. The offer</span>
+        <div className="tpl-list" role="radiogroup" aria-label="Offer">
+          {templates.map((t) => (
+            <button key={t} type="button" role="radio" aria-checked={active === t} className={active === t ? 'tpl on' : 'tpl'}
+              onClick={() => { setTpl(t); setTarget(undefined); }}>
+              <b>{TEMPLATE_LABEL[t]}</b><small>{TEMPLATE_HELP[t]}</small>
+            </button>
+          ))}
+        </div>
       </div>
-      {needsAmount && <Stepper label="Amount" value={n} min={1} max={9} onChange={setN} unit="Influence" />}
-      {tpl === 'hit' && (
-        <div className="targets" role="radiogroup" aria-label="Rival to Sabotage">
-          {thirdParties.map((x) => <button key={x.seat} type="button" role="radio" aria-checked={target === x.seat} className={target === x.seat ? 'target on' : 'target'} onClick={() => setTarget(x.seat)}>{FACTION_SHORT[x.factionId]}</button>)}
+      {needsAmount && (
+        <div className="field">
+          <span className="field-label">3. How much</span>
+          <Stepper label="Amount" value={amount} min={1} max={cap} onChange={setN} unit="Influence" />
+          <p className="dim center">{payer === r ? `They have ${payer?.influence} Influence.` : `You have ${p.influence} Influence.`}{needsContribute ? ' Each of you must pay it into the pool when the dials turn.' : ''}</p>
         </div>
       )}
-      {tpl === 'vote' && (
-        <div className="targets" role="radiogroup" aria-label="Vote">
-          {vk === 'ayeNay'
-            ? (['aye', 'nay'] as const).map((x) => <button key={x} type="button" role="radio" aria-checked={target === x} className={target === x ? 'target on' : 'target'} onClick={() => setTarget(x)}>{x.toUpperCase()}</button>)
-            : thirdParties.map((x) => <button key={x.seat} type="button" role="radio" aria-checked={target === x.seat} className={target === x.seat ? 'target on' : 'target'} onClick={() => setTarget(x.seat)}>{FACTION_SHORT[x.factionId]}</button>)}
+      {active === 'hit' && (
+        <div className="field">
+          <span className="field-label">3. Which rival</span>
+          <div className="targets" role="radiogroup" aria-label="Rival to Sabotage">
+            {thirdParties.map((x) => <button key={x.seat} type="button" role="radio" aria-checked={target === x.seat} className={target === x.seat ? 'target on' : 'target'} onClick={() => setTarget(x.seat)}>{FACTION_SHORT[x.factionId]}</button>)}
+          </div>
         </div>
       )}
-      {terms && <ul className="terms preview">{terms.map((t, i) => <li key={i}>{termText(g, t, me)}</li>)}</ul>}
-      <button type="button" className="btn btn-primary wide" disabled={!terms || partner === null}
+      {active === 'vote' && (
+        <div className="field">
+          <span className="field-label">3. Vote for</span>
+          <div className="targets" role="radiogroup" aria-label="Vote">
+            {vk === 'ayeNay'
+              ? (['aye', 'nay'] as const).map((x) => <button key={x} type="button" role="radio" aria-checked={target === x} className={target === x ? 'target on' : 'target'} onClick={() => setTarget(x)}>{x.toUpperCase()}</button>)
+              : thirdParties.map((x) => <button key={x.seat} type="button" role="radio" aria-checked={target === x.seat} className={target === x.seat ? 'target on' : 'target'} onClick={() => setTarget(x.seat)}>{FACTION_SHORT[x.factionId]}</button>)}
+          </div>
+        </div>
+      )}
+      {terms && <ul className="terms preview" aria-label="What you are offering">{terms.map((t, i) => <li key={i}>{termText(g, t, me)}</li>)}</ul>}
+      {why && <p className="warn center" role="status">{why}</p>}
+      <button type="button" className="btn btn-primary wide" disabled={!terms || partner === null || !affordable}
         onClick={() => { const d = proposeDeal(partner!, terms!); if (d) setResult(d); else onClose(); }}>Send the note</button>
     </Sheet>
   );

@@ -14,13 +14,20 @@ interface SheetProps {
 
 export function Sheet({ title, onClose, children, kind = 'sheet', tall, className = '' }: SheetProps) {
   const ref = useRef<HTMLDivElement>(null);
+  // The latest onClose, so a parent that re-renders (the Whisper timer ticks 4x a second) does not
+  // re-run the effect below: that used to steal focus from inputs and dismiss native pickers.
+  const closer = useRef(onClose);
+  closer.current = onClose;
+  const closable = !!onClose;
   useEffect(() => {
-    ref.current?.focus();
-    if (!onClose) return;
-    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
+    ref.current?.focus({ preventScroll: true });
+  }, []);
+  useEffect(() => {
+    if (!closable) return;
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && closer.current?.();
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [onClose]);
+  }, [closable]);
   return (
     <div className={`overlay overlay-${kind}`} onClick={(e) => e.target === e.currentTarget && onClose?.()}>
       <div ref={ref} className={`panel panel-${kind}${tall ? ' panel-tall' : ''} ${className}`} role="dialog" aria-modal="true" aria-label={title} tabIndex={-1}>
